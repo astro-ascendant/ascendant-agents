@@ -128,10 +128,7 @@ function listFiles(dir, base = dir) {
 function check() {
   const staging = fs.mkdtempSync(path.join(os.tmpdir(), "opencode-ascendant-"));
   // The tracked package.json template travels along so stamping compares fairly.
-  fs.copyFileSync(
-    path.join(DEST_DIR, "package.json"),
-    path.join(staging, "package.json"),
-  );
+  fs.copyFileSync(path.join(DEST_DIR, "package.json"), path.join(staging, "package.json"));
   fs.copyFileSync(path.join(DEST_DIR, "README.md"), path.join(staging, "README.md"));
   build(staging);
   // package.json, README.md, and .gitignore are tracked hand-written files,
@@ -152,7 +149,12 @@ function check() {
   const manifestDrift =
     JSON.stringify(stagedManifest) !== JSON.stringify(trackedManifest) ? ["package.json"] : [];
   fs.rmSync(staging, { recursive: true, force: true });
-  const problems = [...missing.map((f) => `missing ${f}`), ...extra.map((f) => `extra ${f}`), ...changed.map((f) => `changed ${f}`), ...manifestDrift.map((f) => `changed ${f}`)];
+  const problems = [
+    ...missing.map((f) => `missing ${f}`),
+    ...extra.map((f) => `extra ${f}`),
+    ...changed.map((f) => `changed ${f}`),
+    ...manifestDrift.map((f) => `changed ${f}`),
+  ];
   if (problems.length > 0) {
     console.error(`\nBuild check failed:\n${problems.map((p) => `  - ${p}`).join("\n")}`);
     console.error("Run `node scripts/build-opencode-plugin.mjs` and commit the result.");

@@ -2,10 +2,10 @@
   "name": "ascendant-agents",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
   "workspaces": [
     "packages/*"
   ],
+  "type": "module",
   "scripts": {
     "ascendant": "node --experimental-strip-types skills/ascendant/tools/ascendant.ts",
     "init-person": "node --experimental-strip-types skills/ascendant/tools/ascendant.ts init-person",
