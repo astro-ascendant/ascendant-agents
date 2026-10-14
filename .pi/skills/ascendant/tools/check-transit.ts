@@ -17,7 +17,7 @@ export type TransitSchool = "KP" | "Parashari";
 export interface TransitSearchOptions {
   readonly planet: Chart.Planets;
   readonly direction: Transit.TransitDirection;
-  readonly kinds: ReadonlyArray<Transit.TransitKind>;
+  readonly kinds: readonly [Transit.TransitKind, ...Transit.TransitKind[]];
   readonly count: number;
   readonly targetLongitude?: number;
   readonly house?: Chart.Houses;
@@ -57,7 +57,7 @@ export const searchTransits = Effect.fn("Ascendant.searchTransits")(function* (
     from,
     count: options.count,
     direction: options.direction,
-    kinds: [...options.kinds],
+    kinds: options.kinds,
     ...(options.targetLongitude !== undefined
       ? {
           targetLongitude: options.targetLongitude as Chart.Longitude,

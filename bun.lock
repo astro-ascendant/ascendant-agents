@@ -7,7 +7,7 @@
       "dependencies": {
         "@effect/platform-node-shared": "^4.0.1",
         "@toon-format/toon": "4.1.1",
-        "astro-ascendant": "5.0.0",
+        "astro-ascendant": "5.1.0",
         "effect": "^4.0.1",
         "zod": "^4.6.5",
       },
@@ -154,7 +154,7 @@
 
     "@typescript/typescript-win32-x64": ["@typescript/typescript-win32-x64@7.0.2", "", { "os": "win32", "cpu": "x64" }, "sha512-0BQ3HkAHHlKLSp1qRvf3SUhGpGsDuhB/jgFw75guyqbxJqEaS0Cw/VFO8i2nHglJUzQCRtMMR/IBAKE3ETMC4g=="],
 
-    "astro-ascendant": ["astro-ascendant@5.0.0", "", { "dependencies": { "@swisseph/node": "^1.4.0" }, "peerDependencies": { "effect": "^4.0.0" } }, "sha512-ziWVhBVZ8MwewgtG4OCK3Sad4BvTDVZNosSnjaSquUMw+ntXzBfU/5e3Bv6eO9m5cOZrVkIjltvzN08WrZWz7w=="],
+    "astro-ascendant": ["astro-ascendant@5.1.0", "", { "dependencies": { "@swisseph/node": "^1.4.0" }, "peerDependencies": { "effect": "^4.0.0" } }, "sha512-wj0wfdZDcc3BPp/SKd41LgmEFU8/xg4JhlqgrJKRQPW6K9PFffQhGzDlRsP58YyMTtuvXmKZyUrc97GoHWBL9Q=="],
 
     "bun-types": ["bun-types@1.4.2", "", { "dependencies": { "@types/node": "*" } }, "sha512-bxV1FgK7yBIzjRe5zBozIM4Bem11ZJcCXSrjWRG3YWLt8yFDePu4cLjpebO8OvPeIE9trbyPF4fuj3Cia4Fj3w=="],
 

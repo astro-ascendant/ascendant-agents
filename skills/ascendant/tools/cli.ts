@@ -245,12 +245,18 @@ const transitWorkflow = Effect.fn("Ascendant.transitWorkflow")(function* (
       new CommandError("At least one transit kind is required", "VALIDATION_ERROR", [TRANSIT_HELP]),
     );
   }
+  const [firstKind, ...restKinds] = kinds;
+  if (firstKind === undefined) {
+    return yield* Effect.fail(
+      new CommandError("At least one transit kind is required", "VALIDATION_ERROR", [TRANSIT_HELP]),
+    );
+  }
 
   return yield* searchTransits(input.name, input.moment, {
     planet: input.planet,
     school: input.school === "kp" ? "KP" : "Parashari",
     direction: input.direction ?? "forward",
-    kinds,
+    kinds: [firstKind, ...restKinds],
     count: input.count ?? 5,
     ...(input.targetLongitude !== undefined ? { targetLongitude: input.targetLongitude } : {}),
     ...(input.house !== undefined ? { house: input.house } : {}),

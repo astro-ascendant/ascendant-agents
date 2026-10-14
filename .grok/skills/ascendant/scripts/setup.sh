@@ -17,7 +17,7 @@ package_specs=(
   "@effect/platform-node-shared@4.0.1"
   "@swisseph/node@1.4.0"
   "@toon-format/toon@4.1.1"
-  "astro-ascendant@5.0.0"
+  "astro-ascendant@5.1.0"
   "effect@4.0.1"
 )
 
