@@ -3,11 +3,11 @@
   "ignorePatterns": [
     ".agent/skills/**",
     ".claude/skills/**",
+    ".claude-plugin/skills/**",
     ".cursor/skills/**",
     ".gemini/skills/**",
     ".grok/skills/**",
     ".kiro/skills/**",
-    ".opencode/skills/**",
     ".pi/skills/**"
   ]
 }

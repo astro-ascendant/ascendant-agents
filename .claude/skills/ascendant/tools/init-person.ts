@@ -57,7 +57,7 @@ function formatMemory(storedPerson: StoredPerson): string {
 }
 
 function formatInputMarkdown(storedPerson: StoredPerson): string {
-  const rows: Array<ReadonlyArray<string | number>> = [
+  const rows: Array<readonly [string, string | number]> = [
     ["name", storedPerson.name],
     ["birth", storedPerson.moment],
     ["latitude", storedPerson.latitude],
@@ -79,7 +79,7 @@ function formatInputMarkdown(storedPerson: StoredPerson): string {
     "",
     markdownTable(
       ["Field", "Value"],
-      rows.map((row) => [String(row[0]), row[1] as string | number]),
+      rows.map((row) => [row[0], row[1]]),
     ),
     "",
   ].join("\n");
@@ -523,24 +523,18 @@ function formatArgalaMarkdown(result: Effect.Success<ReturnType<typeof Argala.ca
     markdownTable(
       ["Kind", "Position", "Sign", "Planets"],
       [
-        ...result.supporting.map(
-          (relation) =>
-            [
-              "Supporting",
-              relation.position,
-              relation.sign,
-              relation.planets.join(", ") || "—",
-            ] as ReadonlyArray<string>,
-        ),
-        ...result.obstructing.map(
-          (relation) =>
-            [
-              "Obstructing",
-              relation.position,
-              relation.sign,
-              relation.planets.join(", ") || "—",
-            ] as ReadonlyArray<string>,
-        ),
+        ...result.supporting.map((relation) => [
+          "Supporting",
+          relation.position,
+          relation.sign,
+          relation.planets.join(", ") || "—",
+        ]),
+        ...result.obstructing.map((relation) => [
+          "Obstructing",
+          relation.position,
+          relation.sign,
+          relation.planets.join(", ") || "—",
+        ]),
         [
           "Secondary supporting",
           result.secondarySupporting.position,

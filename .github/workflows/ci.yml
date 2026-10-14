@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install root dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Install opencode plugin dependencies
+        run: bun install --frozen-lockfile
+        working-directory: .opencode
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: bun test
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Rebuild generated copies
+        run: |
+          node scripts/build-skill.mjs
+          node scripts/build-opencode-plugin.mjs
+
+      - name: Generated files in sync
+        run: git diff --exit-code

@@ -1,17 +1,12 @@
 import { encode } from "@toon-format/toon";
 import { Chart, Swisseph, Transit } from "astro-ascendant";
-import { Effect, FileSystem, Layer, Match, Path, Schema } from "effect";
+import { Data, Effect, FileSystem, Layer, Match, Path, Schema } from "effect";
 
-export class CommandError extends Error {
+export class CommandError extends Data.TaggedError("CommandError")<{
+  readonly message: string;
   readonly code: string;
   readonly suggestions: ReadonlyArray<string>;
-  constructor(message: string, code: string, suggestions: ReadonlyArray<string> = []) {
-    super(message);
-    this.name = "CommandError";
-    this.code = code;
-    this.suggestions = suggestions;
-  }
-}
+}> {}
 
 export function commandExitCode(error: unknown): number {
   if (error instanceof CommandError && error.code === "VALIDATION_ERROR") return 2;
@@ -73,8 +68,12 @@ const TransitCommandInput = Schema.Struct({
   school: Schema.optional(Schema.Literals(["kp", "parashari"])),
   direction: Schema.optional(Transit.TransitDirection),
   kinds: Schema.optional(Schema.String),
-  count: Schema.optional(Schema.Finite),
-  targetLongitude: Schema.optional(Schema.Finite),
+  count: Schema.optional(
+    Schema.Finite.pipe(Schema.check(Schema.isBetween({ minimum: 1, maximum: 100 }))),
+  ),
+  targetLongitude: Schema.optional(
+    Schema.Finite.pipe(Schema.check(Schema.isBetween({ minimum: 0, maximum: 360 }))),
+  ),
   house: Schema.optional(Chart.Houses),
   maxYears: Schema.optional(Schema.Finite),
   precisionMinutes: Schema.optional(Schema.Finite),
@@ -113,32 +112,45 @@ function parseFlags(
   for (let index = 0; index < args.length; index += 2) {
     const flag = args[index];
     if (flag === undefined || !flag.startsWith("--")) {
-      throw new CommandError(
-        `Unexpected argument for ${command}: ${flag ?? ""}`,
-        "VALIDATION_ERROR",
-        [help],
-      );
+      throw new CommandError({
+        message: `Unexpected argument for ${command}: ${flag ?? ""}`,
+        code: "VALIDATION_ERROR",
+        suggestions: [help],
+      });
     }
     if (!allowed.includes(flag)) {
-      throw new CommandError(`Unknown flag for ${command}: ${flag}`, "VALIDATION_ERROR", [
-        `Valid flags: ${allowed.join(", ")}`,
-        help,
-      ]);
+      throw new CommandError({
+        message: `Unknown flag for ${command}: ${flag}`,
+        code: "VALIDATION_ERROR",
+        suggestions: [`Valid flags: ${allowed.join(", ")}`, help],
+      });
     }
 
     const value = args[index + 1];
     if (value === undefined || value.startsWith("--")) {
-      throw new CommandError(`Missing value for flag: ${flag}`, "VALIDATION_ERROR", [help]);
+      throw new CommandError({
+        message: `Missing value for flag: ${flag}`,
+        code: "VALIDATION_ERROR",
+        suggestions: [help],
+      });
     }
     if (parsed[flag] !== undefined) {
-      throw new CommandError(`Duplicate flag: ${flag}`, "VALIDATION_ERROR", [help]);
+      throw new CommandError({
+        message: `Duplicate flag: ${flag}`,
+        code: "VALIDATION_ERROR",
+        suggestions: [help],
+      });
     }
     parsed[flag] = value;
   }
 
   for (const flag of required) {
     if (parsed[flag] === undefined) {
-      throw new CommandError(`Missing required flag: ${flag}`, "VALIDATION_ERROR", [help]);
+      throw new CommandError({
+        message: `Missing required flag: ${flag}`,
+        code: "VALIDATION_ERROR",
+        suggestions: [help],
+      });
     }
   }
 
@@ -148,7 +160,11 @@ function parseFlags(
 function flagValue(parsed: ParsedFlags, name: string): string {
   const value = parsed[name];
   if (value !== undefined) return value;
-  throw new CommandError(`Missing required flag: ${name}`, "VALIDATION_ERROR");
+  throw new CommandError({
+    message: `Missing required flag: ${name}`,
+    code: "VALIDATION_ERROR",
+    suggestions: [],
+  });
 }
 
 interface CommandFailure {
@@ -162,30 +178,55 @@ function domainError(error: unknown, name: string, fallback: CommandFailure): Co
     Match.when(
       Match.instanceOf(PersonRecordNotFound),
       (notFound) =>
-        new CommandError(notFound.message, "PERSON_NOT_FOUND", [
-          `Run \`ascendant init-person --name "${name}" --moment "<ISO-8601>" --latitude <latitude> --longitude <longitude>\``,
-        ]),
+        new CommandError({
+          message: notFound.message,
+          code: "PERSON_NOT_FOUND",
+          suggestions: [
+            `Run \`ascendant init-person --name "${name}" --moment "<ISO-8601>" --latitude <latitude> --longitude <longitude>\``,
+          ],
+        }),
     ),
     Match.when(
       Match.instanceOf(PersonRecordConflict),
-      (conflict) => new CommandError(conflict.message, "PERSON_RECORD_CONFLICT"),
+      (conflict) =>
+        new CommandError({
+          message: conflict.message,
+          code: "PERSON_RECORD_CONFLICT",
+          suggestions: [],
+        }),
     ),
     Match.when(
       Match.instanceOf(Transit.TransitValidationError),
-      (invalid) => new CommandError(invalid.message, "VALIDATION_ERROR", [TRANSIT_HELP]),
+      (invalid) =>
+        new CommandError({
+          message: invalid.message,
+          code: "VALIDATION_ERROR",
+          suggestions: [TRANSIT_HELP],
+        }),
     ),
     Match.when(
       Match.instanceOf(Transit.TransitSearchExhausted),
       (exhausted) =>
-        new CommandError(exhausted.message, "TRANSIT_SEARCH_EXHAUSTED", [
-          `Found ${exhausted.found.length} events before the search window ran out; retry with a larger --max-years`,
-        ]),
+        new CommandError({
+          message: exhausted.message,
+          code: "TRANSIT_SEARCH_EXHAUSTED",
+          suggestions: [
+            `Found ${exhausted.found.length} events before the search window ran out; retry with a larger --max-years`,
+          ],
+        }),
     ),
-    Match.orElse(() => new CommandError(fallback.message, fallback.code, [fallback.help])),
+    Match.orElse(
+      () =>
+        new CommandError({
+          message: fallback.message,
+          code: fallback.code,
+          suggestions: [fallback.help],
+        }),
+    ),
   );
 }
 
-const transitWorkflow = Effect.fn("Ascendant.transitWorkflow")(function* (
+export const transitWorkflow = Effect.fn("Ascendant.transitWorkflow")(function* (
   args: ReadonlyArray<string>,
 ) {
   const parsed = parseFlags(
@@ -224,7 +265,14 @@ const transitWorkflow = Effect.fn("Ascendant.transitWorkflow")(function* (
       ? { precisionMinutes: Number(parsed["--precision-minutes"]) }
       : {}),
   }).pipe(
-    Effect.mapError((error) => new CommandError(error.message, "VALIDATION_ERROR", [TRANSIT_HELP])),
+    Effect.mapError(
+      (error) =>
+        new CommandError({
+          message: error.message,
+          code: "VALIDATION_ERROR",
+          suggestions: [TRANSIT_HELP],
+        }),
+    ),
   );
 
   const kinds = yield* Effect.forEach(
@@ -233,16 +281,34 @@ const transitWorkflow = Effect.fn("Ascendant.transitWorkflow")(function* (
       Schema.decodeUnknownEffect(Transit.TransitKind)(kind).pipe(
         Effect.mapError(
           () =>
-            new CommandError(`Unknown transit kind: ${kind}`, "VALIDATION_ERROR", [
-              "Valid kinds: sign-ingress, cusp-crossing, longitude-hit, station",
-              TRANSIT_HELP,
-            ]),
+            new CommandError({
+              message: `Unknown transit kind: ${kind}`,
+              code: "VALIDATION_ERROR",
+              suggestions: [
+                "Valid kinds: sign-ingress, cusp-crossing, longitude-hit, station",
+                TRANSIT_HELP,
+              ],
+            }),
         ),
       ),
   );
   if (kinds.length === 0) {
     return yield* Effect.fail(
-      new CommandError("At least one transit kind is required", "VALIDATION_ERROR", [TRANSIT_HELP]),
+      new CommandError({
+        message: "At least one transit kind is required",
+        code: "VALIDATION_ERROR",
+        suggestions: [TRANSIT_HELP],
+      }),
+    );
+  }
+  const [firstKind, ...restKinds] = kinds;
+  if (firstKind === undefined) {
+    return yield* Effect.fail(
+      new CommandError({
+        message: "At least one transit kind is required",
+        code: "VALIDATION_ERROR",
+        suggestions: [TRANSIT_HELP],
+      }),
     );
   }
 
@@ -250,7 +316,7 @@ const transitWorkflow = Effect.fn("Ascendant.transitWorkflow")(function* (
     planet: input.planet,
     school: input.school === "kp" ? "KP" : "Parashari",
     direction: input.direction ?? "forward",
-    kinds,
+    kinds: [firstKind, ...restKinds],
     count: input.count ?? 5,
     ...(input.targetLongitude !== undefined ? { targetLongitude: input.targetLongitude } : {}),
     ...(input.house !== undefined ? { house: input.house } : {}),
@@ -267,7 +333,7 @@ const transitWorkflow = Effect.fn("Ascendant.transitWorkflow")(function* (
   );
 });
 
-const initPersonWorkflow = Effect.fn("Ascendant.initPersonWorkflow")(function* (
+export const initPersonWorkflow = Effect.fn("Ascendant.initPersonWorkflow")(function* (
   args: ReadonlyArray<string>,
 ) {
   const parsed = parseFlags(
@@ -285,7 +351,12 @@ const initPersonWorkflow = Effect.fn("Ascendant.initPersonWorkflow")(function* (
     ...(parsed["--sex"] !== undefined ? { sex: parsed["--sex"] } : {}),
   }).pipe(
     Effect.mapError(
-      (error) => new CommandError(error.message, "VALIDATION_ERROR", [INIT_PERSON_HELP]),
+      (error) =>
+        new CommandError({
+          message: error.message,
+          code: "VALIDATION_ERROR",
+          suggestions: [INIT_PERSON_HELP],
+        }),
     ),
   );
 
@@ -323,7 +394,12 @@ const rulingPlanetsCliWorkflow = Effect.fn("Ascendant.rulingPlanetsCliWorkflow")
     ...(parsed["--longitude"] !== undefined ? { longitude: Number(parsed["--longitude"]) } : {}),
   }).pipe(
     Effect.mapError(
-      (error) => new CommandError(error.message, "VALIDATION_ERROR", [RULING_PLANETS_HELP]),
+      (error) =>
+        new CommandError({
+          message: error.message,
+          code: "VALIDATION_ERROR",
+          suggestions: [RULING_PLANETS_HELP],
+        }),
     ),
   );
 
@@ -332,11 +408,11 @@ const rulingPlanetsCliWorkflow = Effect.fn("Ascendant.rulingPlanetsCliWorkflow")
   if (latitude === undefined || longitude === undefined) {
     if (input.name === undefined) {
       return yield* Effect.fail(
-        new CommandError(
-          "Provide --latitude and --longitude, or --name of a saved person",
-          "VALIDATION_ERROR",
-          [RULING_PLANETS_HELP],
-        ),
+        new CommandError({
+          message: "Provide --latitude and --longitude, or --name of a saved person",
+          code: "VALIDATION_ERROR",
+          suggestions: [RULING_PLANETS_HELP],
+        }),
       );
     }
     const person = yield* readStoredPerson(input.name).pipe(
@@ -417,7 +493,7 @@ function transitCommand(args: string[]): Promise<Record<string, unknown>> {
   return Effect.runPromise(
     transitWorkflow(args).pipe(
       Effect.map((output) => ({ ...output })),
-      Effect.provide(layer as typeof AppLayer),
+      Effect.provide(layer),
     ),
   );
 }
@@ -427,7 +503,7 @@ function rulingPlanetsCommand(args: string[]): Promise<Record<string, unknown>> 
   return Effect.runPromise(
     rulingPlanetsCliWorkflow(args).pipe(
       Effect.map((output) => ({ ...output })),
-      Effect.provide(layer as typeof AppLayer),
+      Effect.provide(layer),
     ),
   );
 }
@@ -522,7 +598,11 @@ function writeError(error: unknown): void {
   const formatted =
     error instanceof CommandError
       ? error
-      : new CommandError(error instanceof Error ? error.message : String(error), "UNKNOWN");
+      : new CommandError({
+          message: error instanceof Error ? error.message : String(error),
+          code: "UNKNOWN",
+          suggestions: [],
+        });
   writeOutput({
     error: formatted.message,
     code: formatted.code,
@@ -560,9 +640,11 @@ async function runCli(argv: ReadonlyArray<string>): Promise<void> {
   const command = argv[0];
   if (command === undefined || command.startsWith("-")) {
     writeError(
-      new CommandError("Flags must come after a command", "VALIDATION_ERROR", [
-        "Run `ascendant <command> --help` to see available commands",
-      ]),
+      new CommandError({
+        message: "Flags must come after a command",
+        code: "VALIDATION_ERROR",
+        suggestions: ["Run `ascendant <command> --help` to see available commands"],
+      }),
     );
     return;
   }
@@ -579,9 +661,11 @@ async function runCli(argv: ReadonlyArray<string>): Promise<void> {
   const handler = commandHandler(command);
   if (handler === undefined) {
     writeError(
-      new CommandError(`Unknown command: ${command}`, "VALIDATION_ERROR", [
-        "Run `ascendant --help` to see available commands",
-      ]),
+      new CommandError({
+        message: `Unknown command: ${command}`,
+        code: "VALIDATION_ERROR",
+        suggestions: ["Run `ascendant --help` to see available commands"],
+      }),
     );
     return;
   }

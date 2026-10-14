@@ -1,0 +1,48 @@
+{
+  "name": "opencode-ascendant",
+  "version": "1.0.0",
+  "description": "Ascendant Vedic astrology skill, slash command, and calculation tools for OpenCode.",
+  "type": "module",
+  "exports": {
+    ".": "./plugin/index.ts",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "plugin/",
+    "skills/",
+    "README.md"
+  ],
+  "license": "AGPL-3.0-or-later",
+  "author": {
+    "name": "Laxman K R",
+    "email": "krlaxman03@gmail.com",
+    "url": "https://thaletto.vercel.app"
+  },
+  "homepage": "https://ascendant-docs.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thaletto/ascendant-agents.git",
+    "directory": "packages/opencode-ascendant"
+  },
+  "keywords": [
+    "opencode",
+    "opencode-plugin",
+    "astrology",
+    "vedic astrology",
+    "sidereal"
+  ],
+  "dependencies": {
+    "@effect/platform-node-shared": "^4.0.4",
+    "@opencode/plugin": "^2.0.29",
+    "@opencode/schema": "^2.0.29",
+    "@toon-format/toon": "^4.4.0",
+    "astro-ascendant": "^5.1.0"
+  },
+  "peerDependencies": {
+    "effect": "^4.0.4"
+  },
+  "trustedDependencies": [
+    "@swisseph/node",
+    "msgpackr-extract"
+  ]
+}

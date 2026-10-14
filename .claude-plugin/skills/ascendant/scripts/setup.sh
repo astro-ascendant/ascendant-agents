@@ -14,11 +14,11 @@ required_packages=(
 )
 
 package_specs=(
-  "@effect/platform-node-shared@4.0.1"
+  "@effect/platform-node-shared@4.0.4"
   "@swisseph/node@1.4.0"
-  "@toon-format/toon@4.1.1"
-  "astro-ascendant@5.0.0"
-  "effect@4.0.1"
+  "@toon-format/toon@4.4.0"
+  "astro-ascendant@5.1.0"
+  "effect@4.0.4"
 )
 
 cd "${WORKING_DIRECTORY}"
