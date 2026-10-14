@@ -6,7 +6,10 @@
  *          scripts/, tools/, agents/)
  * Outputs: skills/ascendant/SKILL.md (canonical, full frontmatter) plus one
  *          generated copy per harness at <configDir>/skills/ascendant/
- *          (e.g. .claude/skills/ascendant/, .opencode/skills/ascendant/).
+ *          (e.g. .claude/skills/ascendant/).
+ *          OpenCode is NOT generated here: the Effect plugin at
+ *          .opencode/plugins/ascendant/ registers the skill, the /ascendant
+ *          command, and the tools programmatically (see that plugin's source).
  *
  * Why SKILL.src.md? The `npx skills` CLI discovers a skill by finding a
  * literal SKILL.md and copies that directory verbatim. If the source file
@@ -52,14 +55,14 @@ const PROVIDERS = {
     displayName: "Claude Code",
     fields: ["user-invocable", "argument-hint"],
   },
+  "claude-plugin": {
+    configDir: ".claude-plugin",
+    displayName: "Claude Plugin",
+    fields: ["user-invocable", "argument-hint"],
+  },
   cursor: { configDir: ".cursor", displayName: "Cursor", fields: [] },
   gemini: { configDir: ".gemini", displayName: "Gemini", fields: [] },
   kiro: { configDir: ".kiro", displayName: "Kiro", fields: [] },
-  opencode: {
-    configDir: ".opencode",
-    displayName: "OpenCode",
-    fields: ["user-invocable", "argument-hint"],
-  },
   pi: { configDir: ".pi", displayName: "Pi", fields: [] },
   grok: {
     configDir: ".grok",
@@ -136,7 +139,7 @@ function copyDirPreservingModes(srcDir, destDir) {
  * Make a generated skill dir match source: write SKILL.md, then replace
  * each managed subtree wholesale so deleted source files cannot linger.
  * Only the skill dir itself is managed; sibling files (e.g.
- * .opencode/plugins/, hooks configs) are untouched.
+ * .opencode/plugins/, .claude-plugin/plugin.json, hooks configs) are untouched.
  */
 function mirrorSkillDir(destSkillDir, skillMd) {
   fs.mkdirSync(destSkillDir, { recursive: true });
@@ -220,22 +223,9 @@ function build() {
     console.log(`✓ ${config.displayName}: ${config.configDir}/skills/ascendant/ (${key})`);
   }
 
-  // 3. OpenCode slash-command bridge: OpenCode registers skill commands
-  // natively but its TUI autocomplete hides them by design, so ship an
-  // explicit command that routes through the skill tool.
-  const commandsDir = path.join(ROOT_DIR, ".opencode", "commands");
-  fs.mkdirSync(commandsDir, { recursive: true });
-  const bridgeFrontmatter = generateFrontmatter({
-    description: frontmatter.description,
-    agent: "build",
-    subtask: true,
-  });
-  fs.writeFileSync(
-    path.join(commandsDir, "ascendant.md"),
-    `${bridgeFrontmatter}\nCall skill({ name: "ascendant" }) and follow its \`Dispatch\` and \`Readings\` sections to handle $ARGUMENTS.\n`,
-    "utf-8",
+  console.log(
+    "✓ OpenCode: skill/command/tools via .opencode/plugins/ascendant/ (no generated copies)",
   );
-  console.log("✓ OpenCode: .opencode/commands/ascendant.md");
 
   console.log(
     "\nBuild complete. Do not hand-edit generated SKILL.md copies; edit skills/ascendant/SKILL.src.md and rebuild.",
