@@ -38,13 +38,15 @@ on npmjs.com and already validated. Nothing to do here for future releases.
    ```
    This restamps every manifest, rebuilds all generated copies, and runs
    typecheck, tests, lint, and format checks.
-4. Commit and push to `main`.
-5. Tag and push the tag (must match
-   `packages/opencode-ascendant/package.json`; CI enforces this):
+4. The agent commits and pushes to `main`.
+5. The agent creates and pushes the tag (confirm first, since pushing the
+   tag publishes to npm):
    ```bash
    git tag opencode-ascendant-vX.Y.Z
    git push origin opencode-ascendant-vX.Y.Z
    ```
+   The tag must match `packages/opencode-ascendant/package.json`;
+   CI enforces this.
    Pushing the tag runs `.github/workflows/release-opencode.yml`, which
    rebuilds the package from sources and runs
    `npm publish --provenance --access public`.
