@@ -9,6 +9,10 @@ on:
 # id-token enables npm OIDC trusted publishing (configure the trusted
 # publisher for opencode-ascendant on npmjs.com first). If NPM_TOKEN is set
 # as a repo secret, npm publish uses it instead; either path works.
+# NPM_TOKEN must be an Automation (or granular) token: classic Publish
+# tokens on a 2FA-enabled account fail with EOTP, which cannot be answered
+# in CI. The npm upgrade below is required for the OIDC path
+# (trusted publishing needs npm >= 11.5.1; stock Node 22 ships npm 10).
 permissions:
   contents: read
   id-token: write
@@ -46,6 +50,9 @@ jobs:
       - name: Verify packed files
         run: bun pm pack --dry-run
         working-directory: packages/opencode-ascendant
+
+      - name: Upgrade npm for OIDC trusted publishing
+        run: npm install -g npm@latest
 
       - name: Publish to npm
         run: npm publish --provenance --access public
