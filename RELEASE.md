@@ -1,0 +1,60 @@
+# Releasing opencode-ascendant
+
+The npm package `opencode-ascendant` is generated from repo sources by
+`scripts/build-opencode-plugin.mjs` (plugin modules from
+`.opencode/plugins/ascendant/`, skill tree from `skills/ascendant/`, version
+and dependency pins stamped from `package.json` / `.opencode/package.json`).
+Never hand-edit `packages/opencode-ascendant/plugin/` or
+`packages/opencode-ascendant/skills/` (build output).
+
+Source of truth for the release version is the root `package.json`;
+`scripts/sync-versions.mjs` stamps it into every manifest and rebuilds.
+
+## One-time setup (done)
+
+Publishing runs in CI via npm OIDC trusted publishing, so no `NPM_TOKEN`
+secret, no one-time passwords. The trusted publisher (repo
+`thaletto/ascendant-agents`, workflow `release-opencode.yml`) is configured
+on npmjs.com and already validated. Nothing to do here for future releases.
+
+## Release steps
+
+1. Add a changeset `.changeset/<name>.md`:
+   ```md
+   ---
+   "opencode-ascendant": patch
+   ---
+
+   What changed.
+   ```
+   Use `minor` for features, `patch` for fixes.
+2. Consume it and restamp:
+   ```bash
+   make version
+   ```
+3. Set `version` in the root `package.json` to the new version, then verify:
+   ```bash
+   make build
+   ```
+   This restamps every manifest, rebuilds all generated copies, and runs
+   typecheck, tests, lint, and format checks.
+4. Commit and push to `main`.
+5. Tag and push the tag (must match
+   `packages/opencode-ascendant/package.json`; CI enforces this):
+   ```bash
+   git tag opencode-ascendant-vX.Y.Z
+   git push origin opencode-ascendant-vX.Y.Z
+   ```
+   Pushing the tag runs `.github/workflows/release-opencode.yml`, which
+   rebuilds the package from sources and runs
+   `npm publish --provenance --access public`.
+
+## Local publish alternative
+
+```bash
+make publish
+```
+
+Versions from changesets, rebuilds, and publishes from your machine.
+Needs npm auth with 2FA handled (automation token or `--otp`); prefer the
+tag-push CI path above.

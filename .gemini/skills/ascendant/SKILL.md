@@ -1,7 +1,7 @@
 ---
 name: ascendant
 description: Save Birth Chart; Get KP or Parashari answers with citations from KP and Parashara references.
-version: 1.0.1
+version: 1.0.2
 ---
 
 ## Role
@@ -87,7 +87,7 @@ join planet star/sub by `Planet Lords` name (lord math: `tools/kp-lords.ts`).
 Do not recompute tables by hand and do not emit the survey.
 
 Done when every house has a one-line state, every planet has dignity plus
-key houses signified, and running plus next dasha periods are named — or the
+key houses signified, and running plus next dasha periods are named, or the
 user has been asked for the files (or `init` has run on a writable host).
 
 ## Step 2: Map the question onto the survey
@@ -100,7 +100,7 @@ from each group house). Then fit the group to the Step 1 survey:
 - Narrow question (one matter: marriage, job change): proceed with the group
   as mapped.
 - Broad question (`How is next year`, `tell me about my life`): cover the
-  nominal group plus every house the survey marks active — houses tied to
+  nominal group plus every house the survey marks active: houses tied to
   the running and next dasha lords, and houses marked weak or afflicted.
   Never answer a broad question from a single group.
 
@@ -124,7 +124,7 @@ KP: read `{guidebook-root}/kp/birth-time-rectification.md` and run the RP test:
    lord (UTC weekday; near sunrise treat a lone day-lord miss as weak).
 4. Match → `Birth time verified`, proceed. Else suspect: on a writable host
    retry `init` at small offsets (±5, ±10, ±15 min) keeping the most RP hits;
-   never overwrite the birth header — report provisional, lower confidence.
+   never overwrite the birth header; report provisional with lower confidence.
    `recent-researches.md` Methods 1-10 are cross-checks only, never decisive.
 
 Done when the verdict (`verified`, or `suspect with provisional moment X`)

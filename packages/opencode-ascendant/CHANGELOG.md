@@ -1,5 +1,11 @@
 # opencode-ascendant
 
+## 1.0.2
+
+### Patch Changes
+
+- Remove em dashes from the skill instructions and package docs, and add RELEASE.md with a `version` make target plus an npm upgrade in the release workflow for OIDC trusted publishing.
+
 ## 1.0.1
 
 ### Patch Changes

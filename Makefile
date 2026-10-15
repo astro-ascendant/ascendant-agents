@@ -10,6 +10,10 @@ build: ## Install deps, match versions, rebuild everything and verify
 	node scripts/sync-versions.mjs
 	npm run typecheck && bun test && npm run lint && npm run format:check
 
+version: ## Consume changesets into version bumps + changelogs, then restamp
+	npx changeset version
+	node scripts/sync-versions.mjs
+
 publish: ## Version from changesets, rebuild all and publish opencode-ascendant
 	npx changeset version
 	node scripts/sync-versions.mjs

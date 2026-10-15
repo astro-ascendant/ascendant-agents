@@ -1,6 +1,6 @@
 {
   "name": "opencode-ascendant",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Ascendant Vedic astrology skill, slash command, and calculation tools for OpenCode.",
   "type": "module",
   "exports": {

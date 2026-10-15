@@ -53,26 +53,8 @@ make build   # install, match versions, rebuild skills + opencode package, verif
 
 ## Releasing opencode-ascendant
 
-The npm package `opencode-ascendant` is generated from repo sources by
-`node scripts/build-opencode-plugin.mjs` (plugin modules from
-`.opencode/plugins/ascendant/`, skill tree from `skills/ascendant/`, version
-and dependency pins stamped from `package.json` / `.opencode/package.json`).
-Never hand-edit `packages/opencode-ascendant/plugin/` or
-`packages/opencode-ascendant/skills/`.
-
-```bash
-make build-opencode-plugin
-git tag opencode-ascendant-v1.0.0  # match packages/opencode-ascendant/package.json
-git push origin opencode-ascendant-v1.0.0
-```
-
-Pushing the tag runs `.github/workflows/release-opencode.yml`, which rebuilds
-the package, verifies the tag matches the stamped version, and runs
-`npm publish --provenance --access public`. Alternatively run `make publish`
-from your machine (changeset version, rebuild, publish with OTP).
-First publish needs either an
-`NPM_TOKEN` repo secret or a trusted publisher configured on npmjs.com for
-this package; see the workflow file.
+See [RELEASE.md](./RELEASE.md) for the full release process
+(changesets, `make version`, `make build`, tag-push CI publish).
 
 Requires a recent OpenCode v2 host (the plugin needs an Effect ≥4.0.4
 runtime for `@effect/platform-node-shared`).
