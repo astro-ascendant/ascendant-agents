@@ -131,9 +131,10 @@ function check() {
   fs.copyFileSync(path.join(DEST_DIR, "package.json"), path.join(staging, "package.json"));
   fs.copyFileSync(path.join(DEST_DIR, "README.md"), path.join(staging, "README.md"));
   build(staging);
-  // package.json, README.md, and .gitignore are tracked hand-written files,
-  // not build output; exclude them from the tree comparison.
-  const authored = new Set(["package.json", "README.md", ".gitignore"]);
+  // package.json, README.md, CHANGELOG.md, and .gitignore are tracked
+  // hand-written files, not build output; exclude them from the tree comparison.
+  // (CHANGELOG.md is appended to by `changeset version` on future releases.)
+  const authored = new Set(["package.json", "README.md", "CHANGELOG.md", ".gitignore"]);
   const expected = listFiles(staging).filter((f) => !authored.has(f));
   const actual = listFiles(DEST_DIR).filter((f) => !authored.has(f));
   const missing = expected.filter((f) => !actual.includes(f));

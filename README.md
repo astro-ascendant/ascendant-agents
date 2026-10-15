@@ -48,9 +48,7 @@ npx skills add thaletto/ascendant-agents --skill ascendant
 ## For contributors
 
 ```bash
-bun install --frozen-lockfile
-bun run typecheck
-make build-all   # match all versions, rebuild skills + opencode package
+make build   # install, match versions, rebuild skills + opencode package, verify
 ```
 
 ## Releasing opencode-ascendant
@@ -70,7 +68,9 @@ git push origin opencode-ascendant-v1.0.0
 
 Pushing the tag runs `.github/workflows/release-opencode.yml`, which rebuilds
 the package, verifies the tag matches the stamped version, and runs
-`npm publish --provenance --access public`. First publish needs either an
+`npm publish --provenance --access public`. Alternatively run `make publish`
+from your machine (changeset version, rebuild, publish with OTP).
+First publish needs either an
 `NPM_TOKEN` repo secret or a trusted publisher configured on npmjs.com for
 this package; see the workflow file.
 

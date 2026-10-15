@@ -10,7 +10,8 @@
   "files": [
     "plugin/",
     "skills/",
-    "README.md"
+    "README.md",
+    "CHANGELOG.md"
   ],
   "license": "AGPL-3.0-or-later",
   "author": {
