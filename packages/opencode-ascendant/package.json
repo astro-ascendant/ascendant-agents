@@ -1,6 +1,6 @@
 {
   "name": "opencode-ascendant",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Ascendant Vedic astrology skill, slash command, and calculation tools for OpenCode.",
   "type": "module",
   "exports": {
@@ -34,12 +34,12 @@
   ],
   "dependencies": {
     "@effect/platform-node-shared": "^4.0.4",
-    "@opencode/plugin": "^2.0.29",
-    "@opencode/schema": "^2.0.29",
     "@toon-format/toon": "^4.4.0",
     "astro-ascendant": "^5.1.0"
   },
   "peerDependencies": {
+    "@opencode/plugin": "^2.0.29",
+    "@opencode/schema": "^2.0.29",
     "effect": "^4.0.4"
   },
   "trustedDependencies": [

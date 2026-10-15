@@ -1,4 +1,8 @@
-import { NodeFileSystem, NodePath } from "@effect/platform-node-shared";
+// Direct subpaths only: the `@effect/platform-node-shared` barrel pulls in
+// socket/cluster modules that import private `effect/net/*` paths, which
+// OpenCode refuses to load into plugins. See .opencode/plugins/ascendant.
+import * as NodeFileSystem from "@effect/platform-node-shared/NodeFileSystem";
+import * as NodePath from "@effect/platform-node-shared/NodePath";
 import { decode } from "@toon-format/toon";
 import { AstroParams, Chart } from "astro-ascendant";
 import * as Swisseph from "astro-ascendant/swisseph";

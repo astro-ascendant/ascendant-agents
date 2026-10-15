@@ -6,6 +6,6 @@ if (argv.length === 1 && (argv[0] === "-v" || argv[0] === "-V" || argv[0] === "-
   process.stdout.write(`${VERSION}\n`);
 } else {
   const { run } = await import("./cli.ts");
-  const { NodeRuntime } = await import("@effect/platform-node-shared");
+  const NodeRuntime = await import("@effect/platform-node-shared/NodeRuntime");
   run(argv).pipe(NodeRuntime.runMain);
 }

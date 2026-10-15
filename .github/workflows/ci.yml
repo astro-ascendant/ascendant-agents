@@ -43,5 +43,8 @@ jobs:
           node scripts/build-skill.mjs
           node scripts/build-opencode-plugin.mjs
 
+      - name: Plugin externals check
+        run: npm run check:plugin
+
       - name: Generated files in sync
         run: git diff --exit-code

@@ -1,4 +1,10 @@
-import { NodeFileSystem, NodePath } from "@effect/platform-node-shared";
+// Import NodeFileSystem/NodePath via direct subpaths, never the package
+// barrel: the barrel re-exports socket/cluster modules that import the
+// private `effect/net/*` paths, which OpenCode does not provide to plugins
+// (plugin load fails with `Cannot load "effect/dist/..." from plugin
+// node_modules`). Only public single-level `effect/*` subpaths are allowed.
+import * as NodeFileSystem from "@effect/platform-node-shared/NodeFileSystem";
+import * as NodePath from "@effect/platform-node-shared/NodePath";
 import { Plugin } from "@opencode/plugin/effect";
 import { Effect, Layer, Scope, Semaphore } from "effect";
 

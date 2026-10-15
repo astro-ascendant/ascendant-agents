@@ -1,14 +1,16 @@
 {
   "name": "ascendant-opencode-plugin",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "type": "module",
   "dependencies": {
     "@effect/platform-node-shared": "4.0.4",
+    "@toon-format/toon": "4.4.0",
+    "astro-ascendant": "5.1.0"
+  },
+  "peerDependencies": {
     "@opencode/plugin": "2.0.29",
     "@opencode/schema": "2.0.29",
-    "@toon-format/toon": "4.4.0",
-    "astro-ascendant": "5.1.0",
     "effect": "4.0.4"
   },
   "devDependencies": {

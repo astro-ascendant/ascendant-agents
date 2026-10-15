@@ -99,12 +99,23 @@ function stampManifest(destDir) {
   const manifestPath = path.join(destDir, "package.json");
   const manifest = readJson(manifestPath);
   manifest.version = root.version;
+  // Runtime dependencies only. `effect` and `@opencode/*` are provided by
+  // the OpenCode host at plugin load (it redirects those imports to its own
+  // runtime instances), so they must stay peer-only: shipping them would
+  // load a second Effect copy or a private `effect/dist/*` path and fail.
   manifest.dependencies = {
     "@effect/platform-node-shared": caret(root.dependencies["@effect/platform-node-shared"]),
-    "@opencode/plugin": caret(opencode.dependencies["@opencode/plugin"]),
-    "@opencode/schema": caret(opencode.dependencies["@opencode/schema"]),
     "@toon-format/toon": caret(root.dependencies["@toon-format/toon"]),
     "astro-ascendant": caret(root.dependencies["astro-ascendant"]),
+  };
+  manifest.peerDependencies = {
+    "@opencode/plugin": caret(
+      opencode.peerDependencies["@opencode/plugin"] ?? opencode.dependencies["@opencode/plugin"],
+    ),
+    "@opencode/schema": caret(
+      opencode.peerDependencies["@opencode/schema"] ?? opencode.dependencies["@opencode/schema"],
+    ),
+    effect: caret(root.dependencies["effect"] ?? root.peerDependencies["effect"]),
   };
   fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf-8");
 }
