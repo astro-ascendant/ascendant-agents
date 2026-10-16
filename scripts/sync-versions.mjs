@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 /**
  * Unified build: match every distributed version to package.json, then
  * rebuild every generated artifact from source.
@@ -22,7 +22,7 @@
  * manifest-only distributions: they need the version stamp but no build
  * step of their own.
  *
- * Run: `node scripts/sync-versions.mjs` (also runs automatically after
+ * Run: `bun scripts/sync-versions.mjs` (also runs automatically after
  * `changeset version` via the `version` npm script, and via `make build-all`).
  * No dependencies.
  */
@@ -63,12 +63,12 @@ for (const { file, indent } of VERSIONED_MANIFESTS) {
   }
 }
 
-execFileSync("node", [path.join(ROOT_DIR, "scripts", "build-skill.mjs")], {
+execFileSync("bun", [path.join(ROOT_DIR, "scripts", "build-skill.mjs")], {
   cwd: ROOT_DIR,
   stdio: "inherit",
 });
 
-execFileSync("node", [path.join(ROOT_DIR, "scripts", "build-opencode-plugin.mjs")], {
+execFileSync("bun", [path.join(ROOT_DIR, "scripts", "build-opencode-plugin.mjs")], {
   cwd: ROOT_DIR,
   stdio: "inherit",
 });

@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 /**
  * Build the publishable `opencode-ascendant` npm package from repo sources.
  *
@@ -13,7 +13,7 @@
  * version are stamped from the manifests on every run, so the published
  * artifact can never drift from what the repo tests.
  *
- * Run: `node scripts/build-opencode-plugin.mjs [--check]`.
+ * Run: `bun scripts/build-opencode-plugin.mjs [--check]`.
  * `--check` builds to a temp dir and fails when the tracked output differs.
  * No dependencies.
  */
@@ -104,7 +104,7 @@ function stampManifest(destDir) {
   // runtime instances), so they must stay peer-only: shipping them would
   // load a second Effect copy or a private `effect/dist/*` path and fail.
   manifest.dependencies = {
-    "@effect/platform-node-shared": caret(root.dependencies["@effect/platform-node-shared"]),
+    "@effect/platform-bun": caret(root.dependencies["@effect/platform-bun"]),
     "@toon-format/toon": caret(root.dependencies["@toon-format/toon"]),
     "astro-ascendant": caret(root.dependencies["astro-ascendant"]),
   };
@@ -169,7 +169,7 @@ function check() {
   ];
   if (problems.length > 0) {
     console.error(`\nBuild check failed:\n${problems.map((p) => `  - ${p}`).join("\n")}`);
-    console.error("Run `node scripts/build-opencode-plugin.mjs` and commit the result.");
+    console.error("Run `bun scripts/build-opencode-plugin.mjs` and commit the result.");
     process.exit(1);
   }
   console.log("✓ packages/opencode-ascendant/ is in sync");

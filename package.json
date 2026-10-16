@@ -7,26 +7,26 @@
   ],
   "type": "module",
   "scripts": {
-    "ascendant": "node --experimental-strip-types skills/ascendant/tools/ascendant.ts",
-    "init-person": "node --experimental-strip-types skills/ascendant/tools/ascendant.ts init-person",
-    "check-transit": "node --experimental-strip-types skills/ascendant/tools/ascendant.ts transit",
+    "ascendant": "bun skills/ascendant/tools/ascendant.ts",
+    "init-person": "bun skills/ascendant/tools/ascendant.ts init-person",
+    "check-transit": "bun skills/ascendant/tools/ascendant.ts transit",
     "test": "bun test",
-    "build:skill": "node scripts/build-skill.mjs",
-    "check:plugin": "node scripts/check-plugin-externals.mjs",
-    "sync-versions": "node scripts/sync-versions.mjs",
+    "build:skill": "bun scripts/build-skill.mjs",
+    "check:plugin": "bun scripts/check-plugin-externals.mjs",
+    "sync-versions": "bun scripts/sync-versions.mjs",
     "changeset": "changeset",
-    "version": "node scripts/sync-versions.mjs",
+    "version": "bun scripts/sync-versions.mjs",
     "typecheck": "tsc --project skills/ascendant/tsconfig.json --noEmit && tsc --project .opencode/tsconfig.json --noEmit",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "format": "oxfmt skills/ascendant/tools scripts .opencode/plugins *.json .oxlintrc.json .oxfmtrc.json skills/ascendant/tsconfig.json .opencode/tsconfig.json",
-    "format:check": "npm run format -- --check"
+    "format:check": "bun run format -- --check"
   },
   "dependencies": {
-    "@effect/platform-node-shared": "^4.0.4",
+    "@effect/platform-bun": "^4.0.5",
     "@toon-format/toon": "4.4.0",
     "astro-ascendant": "5.1.0",
-    "effect": "^4.0.4",
+    "effect": "^4.0.5",
     "zod": "^4.6.7"
   },
   "devDependencies": {

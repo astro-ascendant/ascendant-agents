@@ -7,14 +7,14 @@ help: ## Show this help
 build: ## Install deps, match versions, rebuild everything and verify
 	bun install --frozen-lockfile
 	(cd .opencode && bun install --frozen-lockfile)
-	node scripts/sync-versions.mjs
-	npm run typecheck && bun test && npm run lint && npm run format:check
+	bun scripts/sync-versions.mjs
+	bun run typecheck && bun test && bun run lint && bun run format:check
 
 version: ## Consume changesets into version bumps + changelogs, then restamp
-	npx changeset version
-	node scripts/sync-versions.mjs
+	bunx changeset version
+	bun scripts/sync-versions.mjs
 
 publish: ## Version from changesets, rebuild all and publish opencode-ascendant
-	npx changeset version
-	node scripts/sync-versions.mjs
+	bunx changeset version
+	bun scripts/sync-versions.mjs
 	cd packages/opencode-ascendant && bun install && npm publish --provenance --access public

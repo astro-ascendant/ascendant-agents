@@ -6,7 +6,7 @@ set -euo pipefail
 WORKING_DIRECTORY="$(pwd -P)"
 
 required_packages=(
-  "@effect/platform-node-shared"
+  "@effect/platform-bun"
   "@swisseph/node"
   "@toon-format/toon"
   "astro-ascendant"
@@ -14,11 +14,11 @@ required_packages=(
 )
 
 package_specs=(
-  "@effect/platform-node-shared@4.0.4"
+  "@effect/platform-bun@4.0.5"
   "@swisseph/node@1.4.0"
   "@toon-format/toon@4.4.0"
   "astro-ascendant@5.1.0"
-  "effect@4.0.4"
+  "effect@4.0.5"
 )
 
 cd "${WORKING_DIRECTORY}"
@@ -26,39 +26,8 @@ if command -v bun >/dev/null 2>&1; then
   install_dependencies() {
     bun add --no-save --trust "${package_specs[@]}"
   }
-elif command -v npm >/dev/null 2>&1; then
-  install_dependencies() {
-    local npm_major
-
-    # Install first with scripts disabled so no dependency lifecycle
-    # script runs by default (npm 11 blocks them anyway).
-    if ! npm install \
-      --no-save \
-      --no-package-lock \
-      --no-audit \
-      --no-fund \
-      --ignore-scripts \
-      "${package_specs[@]}"; then
-      return 1
-    fi
-
-    # Only these pinned native packages need compiled install scripts.
-    # The package arguments scope the rebuild to exactly these two;
-    # --dangerously-allow-all-scripts only lifts the npm 11 script
-    # policy for this rebuild invocation (npm rejects the scoped
-    # --allow-scripts CLI flag in project scope, so the broad flag is
-    # required here even though the target set stays narrow).
-    npm_major="$(npm --version)"
-    npm_major="${npm_major%%.*}"
-    if [[ "${npm_major}" =~ ^[0-9]+$ ]] && [ "${npm_major}" -ge 11 ]; then
-      npm rebuild \
-        @swisseph/node \
-        msgpackr-extract \
-        --dangerously-allow-all-scripts
-    fi
-  }
 else
-  printf 'error: Node or Bun package manager is required\ncode: RUNTIME_MISSING\nhelp: Install Node 22.6+ (npm) or Bun, then retry'
+  printf 'error: Bun package manager is required\ncode: RUNTIME_MISSING\nhelp: Install Bun, then retry'
   exit 1
 fi
 

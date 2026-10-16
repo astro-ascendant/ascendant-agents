@@ -15,20 +15,11 @@ print_error() {
 
 if command -v bun >/dev/null 2>&1; then
   RUNTIME=(bun)
-elif command -v node >/dev/null 2>&1; then
-  if ! node --experimental-strip-types -e '' >/dev/null 2>&1; then
-    print_error \
-      "Node 22.6 or newer is required to run the TypeScript tool" \
-      "RUNTIME_UNSUPPORTED" \
-      "Install Node 22.6+ or Bun, then retry"
-    exit 1
-  fi
-  RUNTIME=(node --experimental-strip-types)
 else
   print_error \
-    "Node or Bun is required to run Ascendant" \
+    "Bun is required to run Ascendant" \
     "RUNTIME_MISSING" \
-    "Install Node 22.6+ or Bun, then retry"
+    "Install Bun, then retry"
   exit 1
 fi
 
@@ -46,7 +37,7 @@ if [ ! -e "${RUNTIME_DIR}/.gitignore" ]; then
   printf '*\n' > "${RUNTIME_DIR}/.gitignore"
 fi
 # Local-only runtime copy: sync the trusted skill sources into the working
-# directory so Node resolves the CWD-installed node_modules. No remote
+# directory so Bun resolves the CWD-installed node_modules. No remote
 # fetch happens here. Explicit allowlist only; add new tool files here.
 cp "${SKILL_DIR}/tools/ascendant.ts" \
   "${SKILL_DIR}/tools/cli.ts" \
@@ -57,6 +48,7 @@ cp "${SKILL_DIR}/tools/ascendant.ts" \
   "${SKILL_DIR}/tools/init-person.ts" \
   "${SKILL_DIR}/tools/kp-lords.ts" \
   "${SKILL_DIR}/tools/markdown.ts" \
+  "${SKILL_DIR}/tools/path.ts" \
   "${SKILL_DIR}/tools/version.ts" \
   "${SKILL_DIR}/tools/package.json" \
   "${RUNTIME_TOOLS_DIR}/"

@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 /**
  * Build ascendant skill distribution from a single source of truth.
  *
@@ -28,7 +28,7 @@
  * are gone (Codex loads via the portable root); only the .codex-plugin
  * marketplace shim keeps its own `interface` manifest.
  *
- * Run: `node scripts/build-skill.mjs` (or `npm run build:skill`).
+ * Run: `bun scripts/build-skill.mjs` (or `bun run build:skill`).
  * No dependencies.
  */
 

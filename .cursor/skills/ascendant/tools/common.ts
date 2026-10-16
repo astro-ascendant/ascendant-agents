@@ -1,14 +1,17 @@
-// Direct subpaths only: the `@effect/platform-node-shared` barrel pulls in
-// socket/cluster modules that import private `effect/net/*` paths, which
-// OpenCode refuses to load into plugins. See .opencode/plugins/ascendant.
-import * as NodeFileSystem from "@effect/platform-node-shared/NodeFileSystem";
-import * as NodePath from "@effect/platform-node-shared/NodePath";
+// Direct subpaths only: the `@effect/platform-bun` barrel pulls in
+// socket/cluster modules that import private `effect/*/*` paths, which
+// OpenCode refuses to load into plugins. BunFileSystem stays within
+// public single-level `effect/*` subpaths; Path comes from ./path.ts
+// because BunPath needs `make`, which the host's `effect/Path` lacks.
+// See .opencode/plugins/ascendant.
+import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import { decode } from "@toon-format/toon";
 import { AstroParams, Chart } from "astro-ascendant";
 import * as Swisseph from "astro-ascendant/swisseph";
 import { DateTime, Effect, FileSystem, Layer, Path, Schema } from "effect";
 
 import { Latitude, Longitude, OffsetMoment, PersonName, Sex } from "./contract.ts";
+import { PathLive } from "./path.ts";
 export { Latitude, Longitude, OffsetMoment, PersonName, Sex };
 
 export const StoredPerson = Schema.Struct({
@@ -54,8 +57,8 @@ export class ToonDecodingError extends Schema.TaggedError<ToonDecodingError>()(
 ) {}
 
 const NodeServicesLayer: Layer.Layer<FileSystem.FileSystem | Path.Path> = Layer.mergeAll(
-  NodeFileSystem.layer,
-  NodePath.layer,
+  BunFileSystem.layer,
+  PathLive,
 );
 
 export const PlatformLayer: Layer.Layer<FileSystem.FileSystem | Path.Path> = NodeServicesLayer;
