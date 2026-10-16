@@ -1,7 +1,7 @@
 ---
 name: ascendant
 description: Save Birth Chart; Get KP or Parashari answers with citations from KP and Parashara references.
-version: 1.0.2
+version: 1.0.3
 ---
 
 ## Role

@@ -1,5 +1,11 @@
 # opencode-ascendant
 
+## 1.0.3
+
+### Patch Changes
+
+- Fix OpenCode plugin load failure on hosts running effect 4.0.0-beta.x: replace `@effect/platform-node-shared` with `@effect/platform-bun` direct subpaths and a host-compatible `Path` layer, and go bun-only at runtime.
+
 ## 1.0.2
 
 ### Patch Changes
