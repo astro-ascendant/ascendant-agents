@@ -52,3 +52,7 @@ npx skills add thaletto/ascendant-agents --skill ascendant
 ```bash
 make build   # install, match versions, rebuild skills + opencode package, verify
 ```
+
+Releases publish to npm and open a GitHub Release on tag push — see
+[RELEASE.md](./RELEASE.md) and the
+[Releases page](https://github.com/thaletto/ascendant-agents/releases).

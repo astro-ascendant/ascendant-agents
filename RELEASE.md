@@ -48,8 +48,10 @@ on npmjs.com and already validated. Nothing to do here for future releases.
    The tag must match `packages/opencode-ascendant/package.json`;
    CI enforces this.
    Pushing the tag runs `.github/workflows/release-opencode.yml`, which
-   rebuilds the package from sources and runs
-   `npm publish --provenance --access public`.
+   rebuilds the package, runs
+   `npm publish --provenance --access public`, then creates a GitHub
+   Release for the tag with generated notes. Both artifacts come from the
+   one tag push, so there is nothing extra to do on GitHub.
 
 ## Local publish alternative
 
