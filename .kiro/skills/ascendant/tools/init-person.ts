@@ -75,7 +75,7 @@ function formatInputMarkdown(storedPerson: StoredPerson): string {
     ...(storedPerson.sex !== undefined ? [`sex: ${storedPerson.sex}`] : []),
     "---",
     "",
-    `# Input — ${storedPerson.name}`,
+    `# Input: ${storedPerson.name}`,
     "",
     markdownTable(
       ["Field", "Value"],
@@ -112,8 +112,8 @@ function houseTable(chart: Chart.Chart): string {
         lagna.longitude,
         lagna.degree,
         lagna.sign.name,
-        "—",
-        "—",
+        "-",
+        "-",
       ]);
     }
 
@@ -129,7 +129,7 @@ function houseTable(chart: Chart.Chart): string {
         planet.longitude,
         planet.degree,
         planet.sign.name,
-        planet.in_sign.join(", ") || "—",
+        planet.in_sign.join(", ") || "-",
         planet.is_retrograde,
       ]);
     }
@@ -138,16 +138,16 @@ function houseTable(chart: Chart.Chart): string {
       rows.push([
         house,
         cusp,
-        "—",
+        "-",
         houseData.signLord,
         houseData.starLord,
         houseData.subLord,
         houseData.subSubLord,
-        "—",
-        "—",
+        "-",
+        "-",
         houseData.sign,
-        "—",
-        "—",
+        "-",
+        "-",
       ]);
     }
   }
@@ -182,7 +182,7 @@ function significationTable(chart: Chart.Chart): string {
         houseData.starLord,
         houseData.subLord,
         houseData.subSubLord,
-        houseData.significations?.join(", ") || "—",
+        houseData.significations?.join(", ") || "-",
       ];
     }),
   );
@@ -192,10 +192,10 @@ function planetSignificationTable(chart: Chart.Chart): string {
   if (chart.planetSignifications === undefined) return "";
   const rows = Object.entries(chart.planetSignifications).map(([planet, signification]) => [
     planet,
-    signification.level1.join(", ") || "—",
-    signification.level2.join(", ") || "—",
-    signification.level3.join(", ") || "—",
-    signification.level4.join(", ") || "—",
+    signification.level1.join(", ") || "-",
+    signification.level2.join(", ") || "-",
+    signification.level3.join(", ") || "-",
+    signification.level4.join(", ") || "-",
   ]);
   return markdownTable(["Planet", "Level 1", "Level 2", "Level 3", "Level 4"], rows);
 }
@@ -204,10 +204,10 @@ function houseSignificatorTable(chart: Chart.Chart): string {
   if (chart.houseSignificators === undefined) return "";
   const rows = Object.entries(chart.houseSignificators).map(([house, significators]) => [
     Number(house),
-    significators.level1.join(", ") || "—",
-    significators.level2.join(", ") || "—",
-    significators.level3.join(", ") || "—",
-    significators.level4.join(", ") || "—",
+    significators.level1.join(", ") || "-",
+    significators.level2.join(", ") || "-",
+    significators.level3.join(", ") || "-",
+    significators.level4.join(", ") || "-",
   ]);
   return markdownTable(["House", "Level 1", "Level 2", "Level 3", "Level 4"], rows);
 }
@@ -230,7 +230,7 @@ function formatChartMarkdown(
 ): string {
   const { includeSignificators = true, includeRulingPlanets = true } = options;
   const sections = [
-    `# ${title} — D${chart.division}`,
+    `# ${title}: D${chart.division}`,
     "",
     `Chart D${chart.division} (${calculation.houseSystem}, ${calculation.ayanamsa})`,
     "",
@@ -373,7 +373,7 @@ function formatKpD1Markdown(
 ): string {
   const kpLords = kpCuspAndPlanetLords(chart);
   const sections = [
-    `# KP Chart D1 — D${chart.division}`,
+    `# KP Chart D1: D${chart.division}`,
     "",
     `Chart D${chart.division} (${calculation.houseSystem}, ${calculation.ayanamsa})`,
     "",
@@ -406,7 +406,7 @@ function formatKpD1Markdown(
         cusp.starLord,
         cusp.subLord,
         cusp.subSubLord,
-        chart.houses[cusp.house]?.significations?.join(", ") || "—",
+        chart.houses[cusp.house]?.significations?.join(", ") || "-",
       ]),
     ),
     "",
@@ -527,25 +527,25 @@ function formatArgalaMarkdown(result: Effect.Success<ReturnType<typeof Argala.ca
           "Supporting",
           relation.position,
           relation.sign,
-          relation.planets.join(", ") || "—",
+          relation.planets.join(", ") || "-",
         ]),
         ...result.obstructing.map((relation) => [
           "Obstructing",
           relation.position,
           relation.sign,
-          relation.planets.join(", ") || "—",
+          relation.planets.join(", ") || "-",
         ]),
         [
           "Secondary supporting",
           result.secondarySupporting.position,
           result.secondarySupporting.sign,
-          result.secondarySupporting.planets.join(", ") || "—",
+          result.secondarySupporting.planets.join(", ") || "-",
         ],
         [
           "Secondary obstructing",
           result.secondaryObstructing.position,
           result.secondaryObstructing.sign,
-          result.secondaryObstructing.planets.join(", ") || "—",
+          result.secondaryObstructing.planets.join(", ") || "-",
         ],
       ],
     ),

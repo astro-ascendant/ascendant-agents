@@ -88,24 +88,24 @@ function checkSources() {
         const spec = match[1];
         if (spec === BUN_BARREL || spec.startsWith(`${BUN_BARREL}/internal`)) {
           failures.push(
-            `${rel}: imports "${spec}" — use a direct subpath (e.g. ${BUN_BARREL}/BunFileSystem) so private effect/dist/* modules stay out of the plugin graph`,
+            `${rel}: imports "${spec}"; use a direct subpath (e.g. ${BUN_BARREL}/BunFileSystem) so private effect/dist/* modules stay out of the plugin graph`,
           );
         }
         if (spec === NODE_SHARED || spec.startsWith(`${NODE_SHARED}/`)) {
           failures.push(
-            `${rel}: imports "${spec}" — import the Bun re-export (${BUN_BARREL}/<SubModule>) instead; ${NODE_SHARED} is transitive-only`,
+            `${rel}: imports "${spec}"; import the Bun re-export (${BUN_BARREL}/<SubModule>) instead; ${NODE_SHARED} is transitive-only`,
           );
         }
         const bunSub = spec.match(/^@effect\/platform-bun\/([^"']+)$/);
         if (bunSub && !ALLOWED_BUN_SUBPATHS.has(bunSub[1])) {
           failures.push(
-            `${rel}: imports "${spec}" — only ${[...ALLOWED_BUN_SUBPATHS].map((s) => `${BUN_BARREL}/${s}`).join(", ")} are verified host-safe`,
+            `${rel}: imports "${spec}"; only ${[...ALLOWED_BUN_SUBPATHS].map((s) => `${BUN_BARREL}/${s}`).join(", ")} are verified host-safe`,
           );
         }
         const effectDeep = spec.match(/^effect\/([^"']*\/[^"']*)$/);
         if (effectDeep) {
           failures.push(
-            `${rel}: imports "${spec}" — OpenCode only provides public single-level effect/* subpaths; "${spec}" resolves to a blocked effect/dist/* file`,
+            `${rel}: imports "${spec}"; OpenCode only provides public single-level effect/* subpaths; "${spec}" resolves to a blocked effect/dist/* file`,
           );
         }
       }
@@ -113,17 +113,17 @@ function checkSources() {
         const spec = match[1];
         if (spec === BUN_BARREL) {
           failures.push(
-            `${rel}: dynamic import of "${spec}" barrel — import ${BUN_BARREL}/<SubModule> directly`,
+            `${rel}: dynamic import of "${spec}" barrel; import ${BUN_BARREL}/<SubModule> directly`,
           );
         }
         if (spec === NODE_SHARED || spec.startsWith(`${NODE_SHARED}/`)) {
           failures.push(
-            `${rel}: dynamic import of "${spec}" — import the Bun re-export (${BUN_BARREL}/<SubModule>) instead`,
+            `${rel}: dynamic import of "${spec}"; import the Bun re-export (${BUN_BARREL}/<SubModule>) instead`,
           );
         }
         if (/^effect\/[^"']*\/[^"']*$/.test(spec)) {
           failures.push(
-            `${rel}: dynamic import of "${spec}" — OpenCode only provides public single-level effect/* subpaths`,
+            `${rel}: dynamic import of "${spec}"; OpenCode only provides public single-level effect/* subpaths`,
           );
         }
       }
@@ -138,7 +138,7 @@ function checkManifests() {
     for (const name of PEER_ONLY) {
       if (name in deps) {
         failures.push(
-          `${rel}: "${name}" is a runtime dependency — it must be peer-only (provided by the OpenCode host)`,
+          `${rel}: "${name}" is a runtime dependency; it must be peer-only (provided by the OpenCode host)`,
         );
       }
     }
@@ -178,7 +178,7 @@ function checkDistClosure() {
   );
   if (!fs.existsSync(bunDist)) {
     failures.push(
-      ".opencode/node_modules/@effect/platform-bun/dist is missing — run install in .opencode first",
+      ".opencode/node_modules/@effect/platform-bun/dist is missing; run install in .opencode first",
     );
     return;
   }
@@ -208,12 +208,12 @@ function checkDistClosure() {
           if (fs.existsSync(next)) visit(next);
           else {
             failures.push(
-              `${path.relative(ROOT_DIR, distFile)} re-exports missing "${spec}" — the direct-subpath import may be invalid`,
+              `${path.relative(ROOT_DIR, distFile)} re-exports missing "${spec}"; the direct-subpath import may be invalid`,
             );
           }
         } else if (/^effect\/[^"]*\/[^"]*$/.test(spec)) {
           failures.push(
-            `${path.relative(ROOT_DIR, distFile)} imports "${spec}" — blocked by the OpenCode host (resolves to effect/dist/*)`,
+            `${path.relative(ROOT_DIR, distFile)} imports "${spec}"; blocked by the OpenCode host (resolves to effect/dist/*)`,
           );
         }
       }
@@ -223,7 +223,7 @@ function checkDistClosure() {
     const entry = path.join(bunDist, `${sub}.js`);
     if (!fs.existsSync(entry)) {
       failures.push(
-        `@effect/platform-bun/${sub} does not resolve to dist/${sub}.js — the direct-subpath import may be invalid`,
+        `@effect/platform-bun/${sub} does not resolve to dist/${sub}.js; the direct-subpath import may be invalid`,
       );
       continue;
     }

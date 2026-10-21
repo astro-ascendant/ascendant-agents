@@ -41,7 +41,7 @@ describe("initializePerson chart schools", () => {
         "utf8",
       );
 
-      expect(vedicD1).toContain("# Vedic Chart D1 — D1");
+      expect(vedicD1).toContain("# Vedic Chart D1: D1");
       expect(vedicD1).toContain("Parashari");
       expect(vedicD1).toContain("Lahiri");
       expect(vedicD1).toContain("WholeSign");
@@ -50,7 +50,7 @@ describe("initializePerson chart schools", () => {
       expect(vedicDasha).toContain("Parashari");
       expect(vedicDasha).toContain("| Mahadasha | Start | End |");
 
-      expect(kpD1).toContain("# KP Chart D1 — D1");
+      expect(kpD1).toContain("# KP Chart D1: D1");
       expect(kpD1).toContain("KP");
       expect(kpD1).toContain("KrishnamurtiVP291");
       expect(kpD1).toContain("Placidus");
