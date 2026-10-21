@@ -1,0 +1,99 @@
+name: Astrology miscalculation
+description: A chart, transit, dasha or score came out wrong, or disagrees with another ephemeris.
+title: "[miscalculation] "
+labels: ["astrology-miscalculation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form when the numbers are wrong: a wrong ascendant, house cusp, nakshatra, dasha period, transit hit or ashtakavarga score.
+
+        Please include exact birth data. Without date, time, timezone and coordinates nothing can be reproduced. Records written by the tools land in `persons/<name>/`; check them before reporting.
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Where did you hit the problem?
+      options:
+        - OpenCode plugin tool (ascendant_init_person / ascendant_check_transit)
+        - CLI (bun skills/ascendant/tools/ascendant.ts)
+        - Skill instructions only, no tool call
+        - Bundled script (skills/ascendant/scripts/ascendant.sh)
+        - Something else
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Ascendant version
+      description: From plugin.json, package.json, or the installed package version.
+      placeholder: 1.0.3
+    validations:
+      required: true
+  - type: input
+    id: birth-moment
+    attributes:
+      label: Birth date and time
+      description: Local civil time as given to the tool, with the UTC offset. Never a guess.
+      placeholder: 1990-04-12 06:45 +05:30
+    validations:
+      required: true
+  - type: input
+    id: birth-place
+    attributes:
+      label: Birth coordinates
+      description: Latitude and longitude in decimal degrees, with the place name for sanity checking.
+      placeholder: 13.0827, 80.2707 (Chennai, India)
+    validations:
+      required: true
+  - type: dropdown
+    id: school
+    attributes:
+      label: School / ayanamsa
+      options:
+        - KP (Krishnamurti)
+        - Parashari (Lahiri)
+        - Not sure
+        - Other, noted below
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What the tool reported
+      description: Paste the relevant lines of output. Trim the rest, keep the exact numbers.
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected, and why
+      description: The number you expected, plus the source you are comparing against (another ephemeris, a textbook, a hand calculation).
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: The exact command or prompt that produced the output above.
+      render: shell
+    validations:
+      required: true
+  - type: input
+    id: timezone-source
+    attributes:
+      label: Timezone source
+      description: How the UTC offset was determined, since historical offsets and DST are a common cause.
+      placeholder: IANA zone Asia/Kolkata via tool input / manual offset / unknown
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I re-ran the command and got the same output.
+          required: true
+        - label: I double-checked the birth time, UTC offset and coordinates above.
+          required: true
+        - label: I searched existing issues for the same difference.
+          required: true

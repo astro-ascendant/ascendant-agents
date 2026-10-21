@@ -2,6 +2,11 @@
   "name": "ascendant-agents",
   "version": "1.0.3",
   "private": true,
+  "homepage": "https://astro-ascendant.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/astro-ascendant/ascendant-agents.git"
+  },
   "workspaces": [
     "packages/*"
   ],

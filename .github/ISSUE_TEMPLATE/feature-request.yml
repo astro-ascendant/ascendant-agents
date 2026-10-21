@@ -1,0 +1,56 @@
+name: Feature request
+description: Suggest a new technique, tool, output format or integration.
+title: "[feature] "
+labels: ["feature-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the astrological need first, then the shape of the solution. Requests tied to a real chart or workflow get built faster than abstract ones.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Chart calculation (positions, cusps, nakshatra, vargas)
+        - KP techniques (ruling planets, significators, sublords)
+        - Parashari techniques (dasha, yogas, strength)
+        - Transits and timing
+        - Ashtakavarga and scores
+        - Tool and API surface
+        - Integration (OpenCode, Claude Code, Codex, Cursor, other harness)
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you trying to answer, and where does the current skill or tool stop short?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: What should the skill or tool do instead? Paste sample output if you have one in mind.
+      render: markdown
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Existing techniques, other software, or workarounds you already tried.
+  - type: textarea
+    id: references
+    attributes:
+      label: References
+      description: Classical or modern sources that define the technique, so the implementation can cite them.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and this is not already requested.
+          required: true
+        - label: I am willing to help test this against real charts.
