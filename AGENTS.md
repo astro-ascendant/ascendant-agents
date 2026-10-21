@@ -1,0 +1,72 @@
+# AGENTS.md
+
+Agent notes for this repo. Human docs: `README.md` (install) and `RELEASE.md` (publishing).
+
+## What this is
+
+One Vedic-astrology skill (`ascendant`) plus an OpenCode plugin, with eight generated harness copies.
+Most of the tree is **generated**; only a few directories are hand-authored.
+
+## Sources of truth (edit only these)
+
+- `skills/ascendant/SKILL.src.md` builds `skills/ascendant/SKILL.md`. Keep the `.src.md` name; `npx skills` discovery relies on the literal `SKILL.md` being the built copy.
+- `skills/ascendant/{instructions,references,scripts,tools,agents}/` is copied verbatim into every harness copy. `*.test.ts` files are never copied.
+- `.opencode/plugins/ascendant/` is the hand-written plugin.
+- `scripts/*.mjs` are the build and verification tools (dependency-free).
+- `.agents/skills/update-astro-ascendant/SKILL.md` is a hand-written maintenance skill, not generated.
+
+Generated, committed, never hand-edit (a rebuild overwrites them and CI fails on drift):
+
+- `skills/ascendant/SKILL.md`
+- `.claude/`, `.claude-plugin/`, `.cursor/`, `.gemini/`, `.kiro/`, `.pi/`, `.grok/`, `.agent/` (each `skills/ascendant/`)
+- `packages/opencode-ascendant/` (published npm package: `plugin/`, `skills/`, stamped manifests)
+- Codex has no generated skill copy. `.codex-plugin/` is only a marketplace shim.
+
+## Commands
+
+```bash
+make build      # full gate: installs, version sync, rebuild, typecheck, test, lint, format:check
+bun test        # all tests (currently 3 files under skills/ascendant/tools)
+bun test skills/ascendant/tools/kp-lords.test.ts   # single file
+bun test -t "sub after Ketu"                       # single test by name
+bun run typecheck        # two tsc projects: skills/ascendant and .opencode
+bun run lint             # oxlint
+bun run format           # oxfmt, fixed file list; does not touch markdown or packages/
+bun run check:plugin     # import-graph guard; CI runs it, `make build` does NOT
+```
+
+Rebuild after touching any source, then commit the regenerated output in the same change
+(CI rebuilds and runs `git diff --exit-code`):
+
+```bash
+bun run build:skill                            # SKILL.md + 8 harness copies
+bun scripts/build-opencode-plugin.mjs          # packages/opencode-ascendant/
+bun scripts/build-opencode-plugin.mjs --check  # drift check, builds to a temp dir
+```
+
+## Architecture
+
+- `skills/ascendant/tools/*.ts` is the shared engine (Effect + `astro-ascendant`). CLI: `bun skills/ascendant/tools/ascendant.ts <init-person|transit|ruling-planets>`.
+- `.opencode/plugins/ascendant/` imports the engine as `../../../skills/ascendant/tools/*.ts`. `build-opencode-plugin.mjs` rewrites that prefix to `../skills` in the package, so keep the repo-relative form when editing plugin sources.
+- OpenCode registers the skill, the `/ascendant` command, and both tools programmatically. It reads `skills/ascendant/SKILL.md` at runtime, so there is no OpenCode skill copy to regenerate.
+- `skills/ascendant/scripts/ascendant.sh` copies an **explicit allowlist** of tool files into `./.ascendant-agent/` in the user's cwd. Any new file under `tools/` must be added there or the runtime copy will silently miss it.
+- Person records are written to `./persons/<name>/` in the user's cwd (gitignored). Never commit them.
+
+## Effect and plugin landmines
+
+- The OpenCode v2 host runs `effect` 4.0.0-beta and only serves public single-level `effect/*` subpaths.
+- Never import the `@effect/platform-bun` barrel. Use direct subpaths such as `@effect/platform-bun/BunFileSystem`; `check:plugin` rejects the barrel and deep paths.
+- `BunPath` fails the entire plugin load (the host's `effect/Path` has no `make`). Use the local layer in `skills/ascendant/tools/path.ts`; the header explains why.
+- `.opencode/package.json` pins exact versions and overrides `effect` to 4.0.5, and `skills/ascendant/scripts/setup.sh` pins the same versions for user installs. Bump them together, then refresh both lockfiles (`bun install` at root and inside `.opencode/`).
+
+## Release
+
+- Version source of truth is the root `package.json`. `bun run sync-versions` stamps `plugin.json`, `.claude-plugin/`, `.codex-plugin/`, `.opencode/package.json`, then rebuilds everything.
+- Flow: add a changeset, `make version`, set the root version, `make build`, commit and push `main`.
+- **Ask the user before pushing a release tag.** `git push origin opencode-ascendant-vX.Y.Z` publishes to npm and creates the GitHub Release. The tag must equal the package version; CI enforces it.
+- Commit style from history: conventional prefixes (`feat:`, `fix:`, `chore:`, `docs:`, `ci:`, `style:`), scoped where useful.
+
+## Style
+
+- No em dashes or en dashes anywhere in this repo. Use `:`, `;`, `-`, or parentheses.
+- Markdown tables use `-` in empty cells.
