@@ -14,11 +14,11 @@ body:
     attributes:
       label: Where did you hit the problem?
       options:
-        - OpenCode plugin tool (ascendant_init_person / ascendant_check_transit)
-        - CLI (bun skills/ascendant/tools/ascendant.ts)
-        - Skill instructions only, no tool call
-        - Bundled script (skills/ascendant/scripts/ascendant.sh)
-        - Something else
+        - OpenCode Plugin
+        - Claude Code Plugin
+        - ChatGPT Plugin
+        - Global Skills
+        - Other
     validations:
       required: true
   - type: input
