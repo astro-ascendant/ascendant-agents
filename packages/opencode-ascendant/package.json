@@ -1,6 +1,6 @@
 {
   "name": "opencode-ascendant",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Ascendant Vedic astrology skill, slash command, and calculation tools for OpenCode.",
   "type": "module",
   "exports": {
@@ -19,7 +19,7 @@
     "email": "krlaxman03@gmail.com",
     "url": "https://thaletto.vercel.app"
   },
-  "homepage": "https://ascendant-docs.vercel.app",
+  "homepage": "https://astro-ascendant.vercel.app",
   "repository": {
     "type": "git",
     "url": "https://github.com/astro-ascendant/ascendant-agents.git",

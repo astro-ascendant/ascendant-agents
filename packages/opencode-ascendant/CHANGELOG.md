@@ -1,5 +1,15 @@
 # opencode-ascendant
 
+## 1.1.1
+
+### Patch Changes
+
+- Point the npm package homepage at the live site instead of the retired alias.
+
+  - `packages/opencode-ascendant/package.json` now sets `homepage` to `https://astro-ascendant.vercel.app` (was `https://ascendant-docs.vercel.app`, a 301 to the live site).
+  - The package README links the docs at `https://astro-ascendant.vercel.app/docs/skills`.
+  - The portable, Claude, and Codex plugin manifests carry the same homepage.
+
 ## 1.1.0
 
 ### Minor Changes

@@ -14,4 +14,4 @@ or pin a version:
 opencode plugin add opencode-ascendant@1.0.0
 ```
 
-Requires OpenCode v2. See the full method guide at https://ascendant-docs.vercel.app/docs/skills.
+Requires OpenCode v2. See the full method guide at https://astro-ascendant.vercel.app/docs/skills.

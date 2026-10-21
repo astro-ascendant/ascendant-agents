@@ -1,13 +1,13 @@
 {
   "name": "ascendant",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Vedic astrology calculations and evidence-based readings backed by astro-ascendant.",
   "author": {
     "name": "Laxman K R",
     "email": "krlaxman03@gmail.com",
     "url": "https://thaletto.vercel.app"
   },
-  "homepage": "https://ascendant-docs.vercel.app",
+  "homepage": "https://astro-ascendant.vercel.app",
   "repository": "https://github.com/thaletto/ascendant-agents",
   "license": "AGPL-3.0-or-later",
   "keywords": [
@@ -29,7 +29,7 @@
       "Read",
       "Write"
     ],
-    "websiteURL": "https://ascendant-docs.vercel.app",
+    "websiteURL": "https://astro-ascendant.vercel.app",
     "defaultPrompt": [
       "Can you initialize my saved astrology record?",
       "What does my natal chart show?",
