@@ -1,5 +1,24 @@
 # opencode-ascendant
 
+## 1.1.0
+
+### Minor Changes
+
+- 686f44a: Rename the `init` mode to `add` across the skill, CLI, and tools.
+
+  - Skill argument is now `add` (`/ascendant add`), with routing, dispatch, setup, and README docs updated.
+  - CLI command is `add-person` (was `init-person`); the root `add-person` script follows it.
+  - OpenCode tool is `ascendant_add_person` (was `ascendant_init_person`); the shell script is `scripts/add-person.sh`.
+  - Exported helpers are `addPerson` and `addPersonFromInput`.
+
+### Patch Changes
+
+- 241b3a2: Point repository metadata at the astro-ascendant org and add issue intake.
+
+  - Set the git origin to `https://github.com/astro-ascendant/ascendant-agents.git`.
+  - Add `homepage` (`https://astro-ascendant.vercel.app`) and `repository` to the root `package.json`.
+  - Add GitHub issue templates for astrology miscalculation reports and feature requests.
+
 ## 1.0.3
 
 ### Patch Changes
