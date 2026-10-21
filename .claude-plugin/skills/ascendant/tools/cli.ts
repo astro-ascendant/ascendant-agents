@@ -27,12 +27,12 @@ import {
   readStoredPerson,
   Sex,
 } from "./common.ts";
-import { initializePersonFromInput } from "./init-person.ts";
+import { addPersonFromInput } from "./add-person.ts";
 import { rulingPlanetsWorkflow } from "./ruling-planets.ts";
 
 const DESCRIPTION = "Calculate saved Vedic astrology records and search transits";
-const INIT_PERSON_HELP =
-  'Run `ascendant init-person --name "<name>" --moment "<ISO-8601>" --latitude <latitude> --longitude <longitude> [--sex Male|Female]`';
+const ADD_PERSON_HELP =
+  'Run `ascendant add-person --name "<name>" --moment "<ISO-8601>" --latitude <latitude> --longitude <longitude> [--sex Male|Female]`';
 const TRANSIT_HELP =
   'Run `ascendant transit --name "<name>" --moment "<ISO-8601>" --planet <graha> [--school kp|parashari] [--direction forward|backward] [--kinds sign-ingress,...] [--count <1-100>] [--target-longitude <0-360>] [--house <1-12>] [--max-years <years>] [--precision-minutes <minutes>]`';
 const RULING_PLANETS_HELP =
@@ -42,7 +42,7 @@ const TOP_LEVEL_HELP = `${encode({
   description: DESCRIPTION,
   commands: [
     {
-      name: "init-person",
+      name: "add-person",
       description: "Create or refresh Vedic charts plus a separate KP D1",
     },
     {
@@ -81,7 +81,7 @@ const TransitCommandInput = Schema.Struct({
 
 interface TransitCommandInput extends Schema.Schema.Type<typeof TransitCommandInput> {}
 
-const InitPersonCommandInput = Schema.Struct({
+const AddPersonCommandInput = Schema.Struct({
   name: PersonName,
   moment: OffsetMoment,
   latitude: Latitude,
@@ -89,7 +89,7 @@ const InitPersonCommandInput = Schema.Struct({
   sex: Schema.optional(Sex),
 });
 
-interface InitPersonCommandInput extends Schema.Schema.Type<typeof InitPersonCommandInput> {}
+interface AddPersonCommandInput extends Schema.Schema.Type<typeof AddPersonCommandInput> {}
 
 const RulingPlanetsCommandInput = Schema.Struct({
   moment: OffsetMoment,
@@ -182,7 +182,7 @@ function domainError(error: unknown, name: string, fallback: CommandFailure): Co
           message: notFound.message,
           code: "PERSON_NOT_FOUND",
           suggestions: [
-            `Run \`ascendant init-person --name "${name}" --moment "<ISO-8601>" --latitude <latitude> --longitude <longitude>\``,
+            `Run \`ascendant add-person --name "${name}" --moment "<ISO-8601>" --latitude <latitude> --longitude <longitude>\``,
           ],
         }),
     ),
@@ -333,17 +333,17 @@ export const transitWorkflow = Effect.fn("Ascendant.transitWorkflow")(function* 
   );
 });
 
-export const initPersonWorkflow = Effect.fn("Ascendant.initPersonWorkflow")(function* (
+export const addPersonWorkflow = Effect.fn("Ascendant.addPersonWorkflow")(function* (
   args: ReadonlyArray<string>,
 ) {
   const parsed = parseFlags(
-    "init-person",
+    "add-person",
     args,
     ["--name", "--moment", "--latitude", "--longitude", "--sex"],
     ["--name", "--moment", "--latitude", "--longitude"],
-    INIT_PERSON_HELP,
+    ADD_PERSON_HELP,
   );
-  const input = yield* Schema.decodeUnknownEffect(InitPersonCommandInput)({
+  const input = yield* Schema.decodeUnknownEffect(AddPersonCommandInput)({
     name: flagValue(parsed, "--name"),
     moment: flagValue(parsed, "--moment"),
     latitude: Number(flagValue(parsed, "--latitude")),
@@ -355,12 +355,12 @@ export const initPersonWorkflow = Effect.fn("Ascendant.initPersonWorkflow")(func
         new CommandError({
           message: error.message,
           code: "VALIDATION_ERROR",
-          suggestions: [INIT_PERSON_HELP],
+          suggestions: [ADD_PERSON_HELP],
         }),
     ),
   );
 
-  return yield* initializePersonFromInput(
+  return yield* addPersonFromInput(
     input.name,
     input.moment,
     input.latitude,
@@ -369,8 +369,8 @@ export const initPersonWorkflow = Effect.fn("Ascendant.initPersonWorkflow")(func
   ).pipe(
     Effect.mapError((error) =>
       domainError(error, input.name, {
-        code: "INIT_PERSON_FAILED",
-        message: "Unable to initialize the person record",
+        code: "ADD_PERSON_FAILED",
+        message: "Unable to add the person record",
         help: "Verify the birth data and current working directory, then retry",
       }),
     ),
@@ -452,7 +452,7 @@ const homeView = Effect.fn("Ascendant.homeView")(function* () {
         records: [],
       },
       help: [
-        'Run `ascendant init-person --name "<name>" --moment "<ISO-8601>" --latitude <latitude> --longitude <longitude> [--sex Male|Female>]`',
+        'Run `ascendant add-person --name "<name>" --moment "<ISO-8601>" --latitude <latitude> --longitude <longitude> [--sex Male|Female>]`',
       ],
     };
   }
@@ -474,7 +474,7 @@ const homeView = Effect.fn("Ascendant.homeView")(function* () {
     },
     help: [
       'Run `ascendant transit --name "<name>" --moment "<ISO-8601>" --planet <graha>`',
-      'Run `ascendant init-person --name "<name>" --moment "<ISO-8601>" --latitude <latitude> --longitude <longitude> [--sex Male|Female>]`',
+      'Run `ascendant add-person --name "<name>" --moment "<ISO-8601>" --latitude <latitude> --longitude <longitude> [--sex Male|Female>]`',
     ],
   };
 });
@@ -508,9 +508,9 @@ function rulingPlanetsCommand(args: string[]): Promise<Record<string, unknown>> 
   );
 }
 
-function initPersonCommand(args: string[]): Promise<Record<string, unknown>> {
+function addPersonCommand(args: string[]): Promise<Record<string, unknown>> {
   return Effect.runPromise(
-    initPersonWorkflow(args).pipe(
+    addPersonWorkflow(args).pipe(
       Effect.map((output) => ({ ...output })),
       Effect.provide(AppLayer),
     ),
@@ -520,10 +520,10 @@ function initPersonCommand(args: string[]): Promise<Record<string, unknown>> {
 function commandHelp(command: string): string | null {
   return Match.value(command).pipe(
     Match.when(
-      "init-person",
+      "add-person",
       () =>
         `${encode({
-          command: "init-person",
+          command: "add-person",
           description: "Create or refresh Vedic charts plus a separate KP D1",
           flags: {
             "--name": "Required saved person name",
@@ -533,8 +533,8 @@ function commandHelp(command: string): string | null {
             "--sex": "Optional birth sex: Male or Female",
           },
           examples: [
-            'ascendant init-person --name "Ada" --moment "1990-01-01T12:00:00+05:30" --latitude 12.9716 --longitude 77.5946',
-            'ascendant init-person --name "Ada" --moment "1990-01-01T12:00:00+05:30" --latitude 12.9716 --longitude 77.5946 --sex Female',
+            'ascendant add-person --name "Ada" --moment "1990-01-01T12:00:00+05:30" --latitude 12.9716 --longitude 77.5946',
+            'ascendant add-person --name "Ada" --moment "1990-01-01T12:00:00+05:30" --latitude 12.9716 --longitude 77.5946 --sex Female',
           ],
         })}\n`,
     ),
@@ -615,7 +615,7 @@ function commandHandler(
   command: string,
 ): ((args: string[]) => Promise<Record<string, unknown>>) | undefined {
   return Match.value(command).pipe(
-    Match.when("init-person", () => initPersonCommand),
+    Match.when("add-person", () => addPersonCommand),
     Match.when("transit", () => transitCommand),
     Match.when("ruling-planets", () => rulingPlanetsCommand),
     Match.orElse(() => undefined),

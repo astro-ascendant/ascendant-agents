@@ -1,6 +1,6 @@
 # Setup
 
-Reach this file when `init` or transit must run and packages are missing, on a host that can write the working directory and run skill scripts. Otherwise stay in `SKILL.md`: take person evidence from the user and read `<skill-dir>/references/`.
+Reach this file when `add` or transit must run and packages are missing, on a host that can write the working directory and run skill scripts. Otherwise stay in `SKILL.md`: take person evidence from the user and read `<skill-dir>/references/`.
 
 `<ascendant-skill-dir>` is the installed skill directory (the folder that contains this `instructions/` tree).
 
@@ -27,10 +27,10 @@ Done when `./references/kp/` and `./references/parashari/` exist. The `rm` makes
 
 Collect name, an ISO 8601 moment with `Z` or an explicit UTC offset, latitude, and longitude. Resolve place name and historical offset first. Sex is optional.
 
-Invoke `ascendant_init_person` when the host exposes it. Otherwise:
+Invoke `ascendant_add_person` when the host exposes it. Otherwise:
 
 ```bash
-bash "<ascendant-skill-dir>/scripts/init-person.sh" \
+bash "<ascendant-skill-dir>/scripts/add-person.sh" \
   --name "Person Name" \
   --moment "2000-01-01T12:00:00+05:30" \
   --latitude 12.9716 \

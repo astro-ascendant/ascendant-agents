@@ -5,7 +5,7 @@ import { describe, expect, test } from "bun:test";
 import { Effect, Schema } from "effect";
 
 import { AppLayer, Latitude, Longitude, OffsetMoment, PersonName } from "./common.ts";
-import { initializePersonFromInput } from "./init-person.ts";
+import { addPersonFromInput } from "./add-person.ts";
 
 const ADA = {
   name: Schema.decodeUnknownSync(PersonName)("Ada"),
@@ -14,7 +14,7 @@ const ADA = {
   longitude: Schema.decodeUnknownSync(Longitude)(77.5946),
 } as const;
 
-describe("initializePerson chart schools", () => {
+describe("addPerson chart schools", () => {
   test("writes Lahiri WholeSign vargas and a separate KP D1 as markdown", async () => {
     const workspace = await mkdtemp(join(tmpdir(), "ascendant-a311-"));
     const previous = process.cwd();
@@ -22,7 +22,7 @@ describe("initializePerson chart schools", () => {
 
     try {
       const result = await Effect.runPromise(
-        initializePersonFromInput(ADA.name, ADA.moment, ADA.latitude, ADA.longitude).pipe(
+        addPersonFromInput(ADA.name, ADA.moment, ADA.latitude, ADA.longitude).pipe(
           Effect.provide(AppLayer),
         ),
       );

@@ -15,7 +15,7 @@ import {
   PlatformLayer,
 } from "./common.ts";
 import { searchTransits } from "./check-transit.ts";
-import { initializePersonFromInput } from "./init-person.ts";
+import { addPersonFromInput } from "./add-person.ts";
 import { kpLordChain } from "./kp-lords.ts";
 import { rulingPlanetsWorkflow } from "./ruling-planets.ts";
 
@@ -57,7 +57,7 @@ describe("transit schools", () => {
 
     try {
       await Effect.runPromise(
-        initializePersonFromInput(
+        addPersonFromInput(
           Schema.decodeUnknownSync(PersonName)("Ada"),
           Schema.decodeUnknownSync(OffsetMoment)("1990-01-01T12:00:00+05:30"),
           Schema.decodeUnknownSync(Latitude)(12.9716),

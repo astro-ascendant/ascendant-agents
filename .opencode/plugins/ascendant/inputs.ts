@@ -9,7 +9,7 @@ import {
   Sex,
 } from "../../../skills/ascendant/tools/common.ts";
 
-export const InitPersonInput = Schema.Struct({
+export const AddPersonInput = Schema.Struct({
   name: PersonName.pipe(
     Schema.annotate({ description: "Person name used for the saved record directory" }),
   ),
@@ -24,7 +24,7 @@ export const InitPersonInput = Schema.Struct({
 });
 
 export const CheckTransitInput = Schema.Struct({
-  name: PersonName.pipe(Schema.annotate({ description: "Name of an initialized person record" })),
+  name: PersonName.pipe(Schema.annotate({ description: "Name of a saved person record" })),
   moment: OffsetMoment.pipe(
     Schema.annotate({
       description: "Transit moment in ISO 8601 form with Z or an explicit UTC offset",

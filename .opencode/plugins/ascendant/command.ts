@@ -8,7 +8,7 @@ export const registerCommand = Effect.fn("Ascendant.registerCommand")(function* 
   yield* ctx.command.transform((editor) => {
     editor.add({
       name: "ascendant",
-      description: `${skillDescription} (init | setup | analysis)`,
+      description: `${skillDescription} (add | setup | analysis)`,
       execute: (input) =>
         ctx.session
           .prompt({

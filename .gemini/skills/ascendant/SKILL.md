@@ -16,7 +16,7 @@ reading. Name the school once at the top.
 ## Routing
 
 - Life question with person evidence, new/changed birth data, writable
-  host → `init`: create/refresh `persons/<name>/`, then continue below.
+  host → `add`: create/refresh `persons/<name>/`, then continue below.
 - Tools not ready → `setup`: follow `instructions/setup.md`.
 - Explicit Parashari request → Parashari track; otherwise KP track.
 - Anything else → ask for the question or person evidence.
@@ -26,14 +26,14 @@ reading. Name the school once at the top.
 
 | Branch | When | Then |
 |---|---|---|
-| `init` | Birth data, a writable host, and no current record for it (missing, or birth data differs from the stored record) | Create or refresh `persons/<name>/` |
-| `setup` | `init`, transit, or ruling-planets needs packages, on a writable host | Follow `instructions/setup.md` |
+| `add` | Birth data, a writable host, and no current record for it (missing, or birth data differs from the stored record) | Create or refresh `persons/<name>/` |
+| `setup` | `add`, transit, or ruling-planets needs packages, on a writable host | Follow `instructions/setup.md` |
 | `analysis` | A life question with person evidence | Readings below |
 
 Infer the branch from the user message. **Writable** means the host can create
 `persons/` and run skill scripts. One message with birth data plus a question:
-run `init` first only when the record is missing or differs, then `analysis`
-in the same turn; identical data skips `init`.
+run `add` first only when the record is missing or differs, then `analysis`
+in the same turn; identical data skips `add`.
 
 ## Resolve
 1. `<skill-dir>` is the directory holding this SKILL.md.
@@ -88,7 +88,7 @@ Do not recompute tables by hand and do not emit the survey.
 
 Done when every house has a one-line state, every planet has dignity plus
 key houses signified, and running plus next dasha periods are named, or the
-user has been asked for the files (or `init` has run on a writable host).
+user has been asked for the files (or `add` has run on a writable host).
 
 ## Step 2: Map the question onto the survey
 
@@ -123,7 +123,7 @@ KP: read `{guidebook-root}/kp/birth-time-rectification.md` and run the RP test:
 3. Tie order: Ascendant star, Ascendant sign, Moon star, Moon sign, day
    lord (UTC weekday; near sunrise treat a lone day-lord miss as weak).
 4. Match → `Birth time verified`, proceed. Else suspect: on a writable host
-   retry `init` at small offsets (±5, ±10, ±15 min) keeping the most RP hits;
+   retry `add` at small offsets (±5, ±10, ±15 min) keeping the most RP hits;
    never overwrite the birth header; report provisional with lower confidence.
    `recent-researches.md` Methods 1-10 are cross-checks only, never decisive.
 
@@ -205,4 +205,4 @@ Analysis is complete when every relevant available chart file is used or
 explicitly excluded, school provenance is checked, and supporting and opposing
 evidence are both named. For broad questions every dasha-active or afflicted
 house from the survey is covered or explicitly excluded. When evidence is missing or conflicts block judgment,
-output `Insufficient evidence: run init or attach X` instead of hedging.
+output `Insufficient evidence: run add or attach X` instead of hedging.

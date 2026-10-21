@@ -15,7 +15,7 @@ No re-typing birth data. No made-up charts. Same input → same result.
 
 ## How it works
 
-1. `init`: save birth data to generate Vedic and KP charts, dashas, Ashtakavarga
+1. `add`: save birth data to generate Vedic and KP charts, dashas, Ashtakavarga
 2. Ask anything: answers cite your stored chart, not vibes
 3. `setup`: only when needed to install calculation deps
 

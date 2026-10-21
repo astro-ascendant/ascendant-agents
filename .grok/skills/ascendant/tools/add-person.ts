@@ -29,7 +29,7 @@ import {
 import { kpCuspAndPlanetLords, starLordOf, subLordOf, subSubLordOf } from "./kp-lords.ts";
 import { markdownTable } from "./markdown.ts";
 
-export interface PersonInitialization {
+export interface PersonAddition {
   readonly person: {
     readonly name: string;
     readonly path: string;
@@ -585,9 +585,7 @@ function legacyArtifactFiles(path: Path.Path, personDirectory: string): Readonly
   return files;
 }
 
-export const initializePerson = Effect.fn("Ascendant.initializePerson")(function* (
-  storedPerson: StoredPerson,
-) {
+export const addPerson = Effect.fn("Ascendant.addPerson")(function* (storedPerson: StoredPerson) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const personDirectory = path.join("persons", storedPerson.name);
@@ -746,27 +744,25 @@ export const initializePerson = Effect.fn("Ascendant.initializePerson")(function
       dashas: dasha.length,
       jaimini: 6,
     },
-  } satisfies PersonInitialization;
+  } satisfies PersonAddition;
 });
 
-export const initializePersonFromInput = Effect.fn("Ascendant.initializePersonFromInput")(
-  function* (
-    name: PersonName,
-    moment: OffsetMoment,
-    latitude: Latitude,
-    longitude: Longitude,
-    sex?: Sex,
-  ) {
-    const birthDate = yield* decodeMoment(moment);
-    const storedPerson: StoredPerson = {
-      schemaVersion: 1,
-      name,
-      moment: DateTime.formatIso(birthDate),
-      latitude,
-      longitude,
-      ...(sex !== undefined ? { sex } : {}),
-    };
+export const addPersonFromInput = Effect.fn("Ascendant.addPersonFromInput")(function* (
+  name: PersonName,
+  moment: OffsetMoment,
+  latitude: Latitude,
+  longitude: Longitude,
+  sex?: Sex,
+) {
+  const birthDate = yield* decodeMoment(moment);
+  const storedPerson: StoredPerson = {
+    schemaVersion: 1,
+    name,
+    moment: DateTime.formatIso(birthDate),
+    latitude,
+    longitude,
+    ...(sex !== undefined ? { sex } : {}),
+  };
 
-    return yield* initializePerson(storedPerson);
-  },
-);
+  return yield* addPerson(storedPerson);
+});

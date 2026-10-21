@@ -3,16 +3,16 @@ import { encode } from "@toon-format/toon";
 import { Swisseph } from "astro-ascendant";
 import { Effect, Layer } from "effect";
 
-import { initPersonWorkflow, transitWorkflow } from "../skills/ascendant/tools/cli.ts";
+import { addPersonWorkflow, transitWorkflow } from "../skills/ascendant/tools/cli.ts";
 import {
   AppLayer,
   KpAstroParamsLayer,
   PlatformLayer,
 } from "../skills/ascendant/tools/common.ts";
-import { initPersonArgs, transitArgs } from "./arguments.ts";
+import { addPersonArgs, transitArgs } from "./arguments.ts";
 import { makeDirectoryRunner } from "./directory.ts";
 import { toToolError } from "./errors.ts";
-import { CheckTransitInput, InitPersonInput } from "./inputs.ts";
+import { CheckTransitInput, AddPersonInput } from "./inputs.ts";
 
 const TOOL_TIMEOUT_MS = 60_000;
 
@@ -22,12 +22,12 @@ export const registerTools = Effect.fn("Ascendant.registerTools")(function* (
 ) {
   yield* ctx.tool.transform((editor) => {
     editor.add({
-      name: "ascendant_init_person",
+      name: "ascendant_add_person",
       description: "Create or refresh one saved astrology record from exact birth data.",
-      input: InitPersonInput,
+      input: AddPersonInput,
       execute: (args) =>
         runInDirectory(
-          initPersonWorkflow(initPersonArgs(args)).pipe(
+          addPersonWorkflow(addPersonArgs(args)).pipe(
             Effect.provide(AppLayer),
             Effect.map((output) => ({ content: encode(output) })),
           ),

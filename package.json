@@ -13,7 +13,7 @@
   "type": "module",
   "scripts": {
     "ascendant": "bun skills/ascendant/tools/ascendant.ts",
-    "init-person": "bun skills/ascendant/tools/ascendant.ts init-person",
+    "add-person": "bun skills/ascendant/tools/ascendant.ts add-person",
     "check-transit": "bun skills/ascendant/tools/ascendant.ts transit",
     "test": "bun test",
     "build:skill": "bun scripts/build-skill.mjs",

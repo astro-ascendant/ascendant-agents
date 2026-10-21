@@ -1,6 +1,6 @@
-import type { CheckTransitInput, InitPersonInput } from "./inputs.ts";
+import type { CheckTransitInput, AddPersonInput } from "./inputs.ts";
 
-export function initPersonArgs(args: typeof InitPersonInput.Type): ReadonlyArray<string> {
+export function addPersonArgs(args: typeof AddPersonInput.Type): ReadonlyArray<string> {
   return [
     "--name",
     args.name,

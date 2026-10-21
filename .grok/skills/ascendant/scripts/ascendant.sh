@@ -45,7 +45,7 @@ cp "${SKILL_DIR}/tools/ascendant.ts" \
   "${SKILL_DIR}/tools/contract.ts" \
   "${SKILL_DIR}/tools/check-transit.ts" \
   "${SKILL_DIR}/tools/ruling-planets.ts" \
-  "${SKILL_DIR}/tools/init-person.ts" \
+  "${SKILL_DIR}/tools/add-person.ts" \
   "${SKILL_DIR}/tools/kp-lords.ts" \
   "${SKILL_DIR}/tools/markdown.ts" \
   "${SKILL_DIR}/tools/path.ts" \
