@@ -5,7 +5,7 @@
   "homepage": "https://astro-ascendant.vercel.app",
   "repository": {
     "type": "git",
-    "url": "https://github.com/astro-ascendant/ascendant-agents.git"
+    "url": "https://github.com/astro-ascendant/skills.git"
   },
   "workspaces": [
     "packages/*"

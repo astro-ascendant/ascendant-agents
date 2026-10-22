@@ -14,8 +14,10 @@ Source of truth for the release version is the root `package.json`;
 
 Publishing runs in CI via npm OIDC trusted publishing, so no `NPM_TOKEN`
 secret, no one-time passwords. The trusted publisher (repo
-`thaletto/ascendant-agents`, workflow `release-opencode.yml`) is configured
+`astro-ascendant/skills`, workflow `release-opencode.yml`) is configured
 on npmjs.com and already validated. Nothing to do here for future releases.
+If the repository is renamed or transferred again, update the trusted
+publisher's repository on npmjs.com to match before the next release.
 
 ## Release steps
 
