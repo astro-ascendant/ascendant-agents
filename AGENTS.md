@@ -13,7 +13,7 @@ Most of the tree is **generated**; only a few directories are hand-authored.
 - `skills/ascendant/{instructions,references,scripts,tools,agents}/` is copied verbatim into every harness copy. `*.test.ts` files are never copied.
 - `.opencode/plugins/ascendant/` is the hand-written plugin.
 - `scripts/*.mjs` are the build and verification tools (dependency-free).
-- `.agents/skills/update-astro-ascendant/SKILL.md` is a hand-written maintenance skill, not generated.
+- `UPDATE_ASTRO_ASCENDANT.md` is a hand-written maintenance runbook, not generated.
 
 Generated, committed, never hand-edit (a rebuild overwrites them and CI fails on drift):
 

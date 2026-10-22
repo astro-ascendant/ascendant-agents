@@ -1,9 +1,3 @@
----
-name: update-astro-ascendant
-description: Bump astro-ascendant, sync pinned installers, rebuild harness copies, verify, and commit on approval.
-disable-model-invocation: true
----
-
 # Update astro-ascendant
 
 Roll the `astro-ascendant` dependency forward and bring the pinned installers plus generated harness copies along with it.

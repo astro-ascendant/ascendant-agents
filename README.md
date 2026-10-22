@@ -1,4 +1,4 @@
-# Ascendant Agents
+# Skills
 
 [![skills.sh](https://skills.sh/b/astro-ascendant/skills)](https://skills.sh/astro-ascendant/skills)
 
