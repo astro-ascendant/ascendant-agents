@@ -26,7 +26,7 @@ import {
   writeMarkdown,
   type StoredPerson,
 } from "./common.ts";
-import { kpCuspAndPlanetLords, starLordOf, subLordOf, subSubLordOf } from "./kp-lords.ts";
+import { kpCuspAndPlanetLords } from "./kp-lords.ts";
 import { markdownTable } from "./markdown.ts";
 
 export interface PersonAddition {
@@ -92,6 +92,11 @@ function calculationTable(calculation: ReturnType<typeof calculationContext>): s
   );
 }
 
+/**
+ * Parashari houses table. KP's four-lord chain (star/sub/sub-sub) belongs to
+ * `kp/D1.md`; a varga has no KP sub-divisions at all, so this table carries
+ * only the rashi lord plus placement data.
+ */
 function houseTable(chart: Chart.Chart): string {
   const rows: Array<ReadonlyArray<string | number | boolean>> = [];
   for (const house of Chart.Houses.literals) {
@@ -106,9 +111,6 @@ function houseTable(chart: Chart.Chart): string {
         cusp,
         lagna.name,
         lagna.sign.lord,
-        starLordOf(lagna.longitude),
-        subLordOf(lagna.longitude),
-        subSubLordOf(lagna.longitude),
         lagna.longitude,
         lagna.degree,
         lagna.sign.name,
@@ -123,9 +125,6 @@ function houseTable(chart: Chart.Chart): string {
         cusp,
         planet.name,
         planet.sign.lord,
-        starLordOf(planet.longitude),
-        subLordOf(planet.longitude),
-        subSubLordOf(planet.longitude),
         planet.longitude,
         planet.degree,
         planet.sign.name,
@@ -135,56 +134,12 @@ function houseTable(chart: Chart.Chart): string {
     }
 
     if (rows.length === before) {
-      rows.push([
-        house,
-        cusp,
-        "-",
-        houseData.signLord,
-        houseData.starLord,
-        houseData.subLord,
-        houseData.subSubLord,
-        "-",
-        "-",
-        houseData.sign,
-        "-",
-        "-",
-      ]);
+      rows.push([house, cusp, "-", houseData.signLord, "-", "-", houseData.sign, "-", "-"]);
     }
   }
   return markdownTable(
-    [
-      "House",
-      "Cusp",
-      "Point",
-      "Sign Lord",
-      "Star Lord",
-      "Sub Lord",
-      "Sub-Sub Lord",
-      "Longitude",
-      "Degree",
-      "Sign",
-      "Dignity",
-      "Retrograde",
-    ],
+    ["House", "Cusp", "Point", "Sign Lord", "Longitude", "Degree", "Sign", "Dignity", "Retrograde"],
     rows,
-  );
-}
-
-function significationTable(chart: Chart.Chart): string {
-  return markdownTable(
-    ["House", "Cusp", "Sign Lord", "Star Lord", "Sub Lord", "Sub-Sub Lord", "Significations"],
-    Chart.Houses.literals.map((house) => {
-      const houseData = chart.houses[house];
-      return [
-        house,
-        houseData.cusp,
-        houseData.signLord,
-        houseData.starLord,
-        houseData.subLord,
-        houseData.subSubLord,
-        houseData.significations?.join(", ") || "-",
-      ];
-    }),
   );
 }
 
@@ -220,38 +175,20 @@ function rulingPlanetsTable(chart: Chart.Chart): string {
 }
 
 function formatChartMarkdown(
-  title: string,
+  school: string,
   calculation: ReturnType<typeof calculationContext>,
   chart: Chart.Chart,
-  options: {
-    readonly includeSignificators?: boolean;
-    readonly includeRulingPlanets?: boolean;
-  } = {},
 ): string {
-  const { includeSignificators = true, includeRulingPlanets = true } = options;
-  const sections = [
-    `# ${title}: D${chart.division}`,
-    "",
-    `Chart D${chart.division} (${calculation.houseSystem}, ${calculation.ayanamsa})`,
+  return [
+    `# ${school} Chart D${chart.division}`,
     "",
     calculationTable(calculation),
     "",
     "## Houses",
     "",
     houseTable(chart),
-  ];
-  if (includeSignificators) {
-    sections.push("", "## House Significations", "", significationTable(chart));
-    const planetTable = planetSignificationTable(chart);
-    if (planetTable !== "") sections.push("", "## Planet Significations", "", planetTable);
-    const houseTableText = houseSignificatorTable(chart);
-    if (houseTableText !== "") sections.push("", "## House Significators", "", houseTableText);
-  }
-  if (includeRulingPlanets) {
-    sections.push("", "## Ruling Planets", "", rulingPlanetsTable(chart));
-  }
-  sections.push("");
-  return sections.join("\n");
+    "",
+  ].join("\n");
 }
 
 function formatDashaMarkdown(
@@ -373,9 +310,7 @@ function formatKpD1Markdown(
 ): string {
   const kpLords = kpCuspAndPlanetLords(chart);
   const sections = [
-    `# KP Chart D1: D${chart.division}`,
-    "",
-    `Chart D${chart.division} (${calculation.houseSystem}, ${calculation.ayanamsa})`,
+    `# KP Chart D${chart.division}`,
     "",
     calculationTable(calculation),
     "",
@@ -683,10 +618,7 @@ export const addPerson = Effect.fn("Ascendant.addPerson")(function* (storedPerso
     vedicCalculation.charts.map((chart) =>
       writeMarkdown(
         path.join(chartsDirectory, `D${chart.division}.md`),
-        formatChartMarkdown(`Vedic Chart D${chart.division}`, vedicContext, chart, {
-          includeSignificators: chart.division === 1,
-          includeRulingPlanets: chart.division === 1,
-        }),
+        formatChartMarkdown("Vedic", vedicContext, chart),
       ),
     ),
     { concurrency: "unbounded" },

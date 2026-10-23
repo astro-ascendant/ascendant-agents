@@ -2,6 +2,7 @@ import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, test } from "bun:test";
+import { Chart } from "astro-ascendant";
 import { Effect, Schema } from "effect";
 
 import { AppLayer, Latitude, Longitude, OffsetMoment, PersonName } from "./common.ts";
@@ -14,8 +15,18 @@ const ADA = {
   longitude: Schema.decodeUnknownSync(Longitude)(77.5946),
 } as const;
 
+/** Fields that only exist in KP: cuspal sub-divisions, significations, ruling planets. */
+const KP_ONLY_MARKERS = [
+  "Star Lord",
+  "Sub Lord",
+  "Sub-Sub Lord",
+  "Significations",
+  "Significators",
+  "Ruling Planets",
+] as const;
+
 describe("addPerson chart schools", () => {
-  test("writes Lahiri WholeSign vargas and a separate KP D1 as markdown", async () => {
+  test("keeps KP-only fields out of the Parashari vargas", async () => {
     const workspace = await mkdtemp(join(tmpdir(), "ascendant-a311-"));
     const previous = process.cwd();
     process.chdir(workspace);
@@ -30,36 +41,45 @@ describe("addPerson chart schools", () => {
       expect(result.artifacts.charts).toBe(16);
       expect(result.artifacts.kpCharts).toBe(1);
 
-      const vedicD1 = await readFile(join(workspace, "persons", "Ada", "charts", "D1.md"), "utf8");
-      const vedicDasha = await readFile(join(workspace, "persons", "Ada", "dasha.md"), "utf8");
-      const kpD1 = await readFile(join(workspace, "persons", "Ada", "kp", "D1.md"), "utf8");
-      const kpDasha = await readFile(join(workspace, "persons", "Ada", "kp", "dasha.md"), "utf8");
-      const input = await readFile(join(workspace, "persons", "Ada", "input.md"), "utf8");
-      const sav = await readFile(join(workspace, "persons", "Ada", "sav.md"), "utf8");
-      const charaKarakas = await readFile(
-        join(workspace, "persons", "Ada", "jaimini", "chara-karakas.md"),
-        "utf8",
-      );
+      const personDirectory = join(workspace, "persons", "Ada");
+      const kpD1 = await readFile(join(personDirectory, "kp", "D1.md"), "utf8");
 
-      expect(vedicD1).toContain("# Vedic Chart D1: D1");
-      expect(vedicD1).toContain("Parashari");
-      expect(vedicD1).toContain("Lahiri");
-      expect(vedicD1).toContain("WholeSign");
-      expect(vedicD1).toContain("| House | Cusp |");
-      expect(vedicDasha).toContain("# Vimshottari Dasha");
-      expect(vedicDasha).toContain("Parashari");
-      expect(vedicDasha).toContain("| Mahadasha | Start | End |");
+      for (const division of Chart.Division.literals) {
+        const varga = await readFile(join(personDirectory, "charts", `D${division}.md`), "utf8");
+        expect(varga.startsWith(`# Vedic Chart D${division}\n`)).toBe(true);
+        expect(varga).toContain("| Parashari | Lahiri | WholeSign | Vimshottari |");
+        expect(varga).toContain(
+          "| House | Cusp | Point | Sign Lord | Longitude | Degree | Sign | Dignity | Retrograde |",
+        );
+        for (const marker of KP_ONLY_MARKERS) {
+          expect(varga).not.toContain(marker);
+        }
+      }
 
-      expect(kpD1).toContain("# KP Chart D1: D1");
-      expect(kpD1).toContain("KP");
-      expect(kpD1).toContain("KrishnamurtiVP291");
-      expect(kpD1).toContain("Placidus");
+      expect(kpD1.startsWith("# KP Chart D1\n")).toBe(true);
+      expect(kpD1).toContain("| KP | KrishnamurtiVP291 | Placidus | Vimshottari |");
       expect(kpD1).toContain("## Cusp Lords");
       expect(kpD1).toContain("## Planet Lords");
       expect(kpD1).toContain("Sub-Sub Lord");
-      expect(kpDasha).toContain("KP");
+      expect(kpD1).toContain("## House Significators");
+      expect(kpD1).toContain("## Planet Significations");
+      expect(kpD1).toContain("## Ruling Planets");
+
+      const vedicDasha = await readFile(join(personDirectory, "dasha.md"), "utf8");
+      const kpDasha = await readFile(join(personDirectory, "kp", "dasha.md"), "utf8");
+      expect(vedicDasha).toContain("# Vimshottari Dasha");
+      expect(vedicDasha).toContain("| Parashari | Lahiri | WholeSign | Vimshottari |");
+      expect(vedicDasha).toContain("| Mahadasha | Start | End |");
+      expect(kpDasha).toContain("# KP Vimshottari Dasha");
+      expect(kpDasha).toContain("| KP | KrishnamurtiVP291 | Placidus | Vimshottari |");
       expect(kpDasha).toContain("| Mahadasha | Start | End |");
 
+      const input = await readFile(join(personDirectory, "input.md"), "utf8");
+      const sav = await readFile(join(personDirectory, "sav.md"), "utf8");
+      const charaKarakas = await readFile(
+        join(personDirectory, "jaimini", "chara-karakas.md"),
+        "utf8",
+      );
       expect(input).toContain("name: Ada");
       expect(input).toContain("| Field | Value |");
       expect(sav).toContain("# Sarvashtakavarga");
