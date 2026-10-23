@@ -4,12 +4,24 @@
  *
  * Source:  skills/ascendant/SKILL.src.md (+ instructions/, references/,
  *          scripts/, tools/, agents/)
- * Outputs: skills/ascendant/SKILL.md (canonical, full frontmatter) plus one
- *          generated copy per harness at <configDir>/skills/ascendant/
- *          (e.g. .claude/skills/ascendant/).
- *          OpenCode is NOT generated here: the Effect plugin at
- *          .opencode/plugins/ascendant/ registers the skill, the /ascendant
- *          command, and the tools programmatically (see that plugin's source).
+ * Outputs: skills/ascendant/SKILL.md (canonical, full frontmatter) and the
+ *          Claude Code plugin copy at .claude-plugin/skills/ascendant/.
+ *
+ * There are no per-harness copies. Every harness installs the skill from a
+ * real distribution channel instead:
+ *
+ *   - `npx skills add astro-ascendant/skills --skill ascendant` reads the
+ *     canonical dir;
+ *   - Codex reads the canonical dir through `.codex-plugin/plugin.json`
+ *     (`"skills": "./skills/"`);
+ *   - Claude Code reads its own plugin copy, which this script writes;
+ *   - OpenCode registers skill, /ascendant command, and tools from the Effect
+ *     plugin at `.opencode/plugins/ascendant/` (see that plugin's source).
+ *
+ * Committed `.claude/`, `.cursor/`, `.gemini/`, `.kiro/`, `.pi/`, `.grok/`,
+ * and `.agent/` trees were removed: they duplicated ~2.1k lines each with no
+ * install path pointing at them, and global skill installs already cover
+ * those harnesses.
  *
  * Why SKILL.src.md? The `npx skills` CLI discovers a skill by finding a
  * literal SKILL.md and copies that directory verbatim. If the source file
@@ -17,16 +29,14 @@
  * SKILL.src.md hides it from discovery so installs resolve to a compiled
  * copy instead (same trick as impeccable's skill/SKILL.src.md).
  *
- * Only frontmatter varies per provider: each harness gets `name` +
- * `description` + `version` always, and `user-invocable` / `argument-hint`
- * only where that harness honors them (unknown keys are rejected by some
- * validators, e.g. Codex). The body stays byte-identical everywhere: the
- * `<skill-dir>` / `<ascendant-skill-dir>` tokens are resolved by the agent
- * at runtime to the directory holding SKILL.md, so they are portable.
+ * Frontmatter varies per provider: the canonical and Claude copies carry
+ * `name` + `description` + `version` plus `user-invocable` / `argument-hint`.
+ * The body stays byte-identical: the `<skill-dir>` token is resolved by the
+ * agent at runtime to the directory holding SKILL.md, so it is portable.
  *
- * Version is read from the portable root plugin.json. Codex-flavored outputs
- * are gone (Codex loads via the portable root); only the .codex-plugin
- * marketplace shim keeps its own `interface` manifest.
+ * Version is read from the portable root plugin.json. Codex loads via the
+ * portable root; only the .codex-plugin marketplace shim keeps its own
+ * `interface` manifest.
  *
  * Run: `bun scripts/build-skill.mjs` (or `bun run build:skill`).
  * No dependencies.
@@ -41,35 +51,21 @@ const ROOT_DIR = path.resolve(__dirname, "..");
 const SOURCE_DIR = path.join(ROOT_DIR, "skills", "ascendant");
 const SRC_FILE = path.join(SOURCE_DIR, "SKILL.src.md");
 
-// Subtrees copied verbatim into every generated copy (SKILL.src.md excluded).
+// Subtrees mirrored into the Claude plugin copy (SKILL.src.md excluded).
 const SOURCE_SUBTREES = ["instructions", "references", "scripts", "tools", "agents"];
 
 /**
  * Provider table. configDir is the harness dot-directory; fields lists the
  * optional frontmatter keys emitted beyond name/description/version.
- * versionInMetadata moves `version` under a `metadata` map (Codex layout).
+ * Every plugin-backed distribution that owns a skill copy belongs here;
+ * global skill installs and the OpenCode/Codex plugins need no entry.
  */
 const PROVIDERS = {
-  "claude-code": {
-    configDir: ".claude",
-    displayName: "Claude Code",
-    fields: ["user-invocable", "argument-hint"],
-  },
   "claude-plugin": {
     configDir: ".claude-plugin",
     displayName: "Claude Plugin",
     fields: ["user-invocable", "argument-hint"],
   },
-  cursor: { configDir: ".cursor", displayName: "Cursor", fields: [] },
-  gemini: { configDir: ".gemini", displayName: "Gemini", fields: [] },
-  kiro: { configDir: ".kiro", displayName: "Kiro", fields: [] },
-  pi: { configDir: ".pi", displayName: "Pi", fields: [] },
-  grok: {
-    configDir: ".grok",
-    displayName: "Grok Build",
-    fields: ["user-invocable", "argument-hint"],
-  },
-  antigravity: { configDir: ".agent", displayName: "Antigravity", fields: [] },
 };
 
 function parseFrontmatter(content) {
@@ -173,9 +169,9 @@ function readSkillsVersion() {
   return pluginJson.version;
 }
 
-function buildSkillMarkdown(frontmatter, body, { fields, version, versionInMetadata }) {
+function buildSkillMarkdown(frontmatter, body, { fields, version }) {
   const out = { name: frontmatter.name, description: frontmatter.description };
-  if (version && !versionInMetadata) out.version = version;
+  if (version) out.version = version;
   if (fields.includes("user-invocable") && frontmatter["user-invocable"])
     out["user-invocable"] = true;
   if (
@@ -185,7 +181,6 @@ function buildSkillMarkdown(frontmatter, body, { fields, version, versionInMetad
   ) {
     out["argument-hint"] = frontmatter["argument-hint"];
   }
-  if (version && versionInMetadata) out.metadata = { version };
   return `${generateFrontmatter(out)}\n\n${body}`;
 }
 
@@ -203,28 +198,24 @@ function build() {
     buildSkillMarkdown(frontmatter, body, {
       fields: ["user-invocable", "argument-hint"],
       version,
-      versionInMetadata: false,
     }),
     "utf-8",
   );
   console.log(`✓ canonical: skills/ascendant/SKILL.md (v${version})`);
 
-  // 2. Per-harness copies.
+  // 2. Plugin copies. Only distributions that own their skill tree need one.
   for (const [key, config] of Object.entries(PROVIDERS)) {
     const destSkillDir = path.join(ROOT_DIR, config.configDir, "skills", "ascendant");
     mirrorSkillDir(
       destSkillDir,
-      buildSkillMarkdown(frontmatter, body, {
-        fields: config.fields,
-        version,
-        versionInMetadata: !!config.versionInMetadata,
-      }),
+      buildSkillMarkdown(frontmatter, body, { fields: config.fields, version }),
     );
     console.log(`✓ ${config.displayName}: ${config.configDir}/skills/ascendant/ (${key})`);
   }
 
+  console.log("✓ Codex: canonical skills/ via .codex-plugin/plugin.json (no generated copy)");
   console.log(
-    "✓ OpenCode: skill/command/tools via .opencode/plugins/ascendant/ (no generated copies)",
+    "✓ OpenCode: skill/command/tools via .opencode/plugins/ascendant/ (no generated copy)",
   );
 
   console.log(

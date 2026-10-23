@@ -4,13 +4,13 @@ Agent notes for this repo. Human docs: `README.md` (install) and `RELEASE.md` (p
 
 ## What this is
 
-One Vedic-astrology skill (`ascendant`) plus an OpenCode plugin, with eight generated harness copies.
+One Vedic-astrology skill (`ascendant`) plus plugins for Claude Code, Codex, and OpenCode.
 Most of the tree is **generated**; only a few directories are hand-authored.
 
 ## Sources of truth (edit only these)
 
 - `skills/ascendant/SKILL.src.md` builds `skills/ascendant/SKILL.md`. Keep the `.src.md` name; `npx skills` discovery relies on the literal `SKILL.md` being the built copy.
-- `skills/ascendant/{instructions,references,scripts,tools,agents}/` is copied verbatim into every harness copy. `*.test.ts` files are never copied.
+- `skills/ascendant/{instructions,references,scripts,tools,agents}/` is the skill payload, copied verbatim into the Claude plugin. `*.test.ts` files are never copied.
 - `.opencode/plugins/ascendant/` is the hand-written plugin.
 - `scripts/*.mjs` are the build and verification tools (dependency-free).
 - `UPDATE_ASTRO_ASCENDANT.md` is a hand-written maintenance runbook, not generated.
@@ -18,9 +18,9 @@ Most of the tree is **generated**; only a few directories are hand-authored.
 Generated, committed, never hand-edit (a rebuild overwrites them and CI fails on drift):
 
 - `skills/ascendant/SKILL.md`
-- `.claude/`, `.claude-plugin/`, `.cursor/`, `.gemini/`, `.kiro/`, `.pi/`, `.grok/`, `.agent/` (each `skills/ascendant/`)
+- `.claude-plugin/skills/ascendant/` (Claude Code plugin copy)
 - `packages/opencode-ascendant/` (published npm package: `plugin/`, `skills/`, stamped manifests)
-- Codex has no generated skill copy. `.codex-plugin/` is only a marketplace shim.
+- Codex has no generated skill copy: `.codex-plugin/plugin.json` points at the canonical `skills/`. There are no per-harness copies for Cursor, Gemini, Kiro, Pi, Grok, or Antigravity; those install the canonical skill globally (`npx skills`).
 
 ## Commands
 
@@ -39,7 +39,7 @@ Rebuild after touching any source, then commit the regenerated output in the sam
 (CI rebuilds and runs `git diff --exit-code`):
 
 ```bash
-bun run build:skill                            # SKILL.md + 8 harness copies
+bun run build:skill                            # SKILL.md + Claude plugin copy
 bun scripts/build-opencode-plugin.mjs          # packages/opencode-ascendant/
 bun scripts/build-opencode-plugin.mjs --check  # drift check, builds to a temp dir
 ```
