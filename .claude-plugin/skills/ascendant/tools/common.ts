@@ -5,7 +5,6 @@
 // because BunPath needs `make`, which the host's `effect/Path` lacks.
 // See .opencode/plugins/ascendant.
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
-import { decode } from "@toon-format/toon";
 import { AstroParams, Chart } from "astro-ascendant";
 import * as Swisseph from "astro-ascendant/swisseph";
 import { DateTime, Effect, FileSystem, Layer, Path, Schema } from "effect";
@@ -40,16 +39,8 @@ export class PersonRecordConflict extends Schema.TaggedError<PersonRecordConflic
   },
 ) {}
 
-export class ToonEncodingError extends Schema.TaggedError<ToonEncodingError>()(
-  "ToonEncodingError",
-  {
-    file: Schema.String,
-    message: Schema.String,
-  },
-) {}
-
-export class ToonDecodingError extends Schema.TaggedError<ToonDecodingError>()(
-  "ToonDecodingError",
+export class RecordDecodingError extends Schema.TaggedError<RecordDecodingError>()(
+  "RecordDecodingError",
   {
     file: Schema.String,
     message: Schema.String,
@@ -152,7 +143,7 @@ function parseInputFrontmatter(contents: string, inputFile: string) {
   const match = contents.match(FRONTMATTER_PATTERN);
   if (match?.[1] === undefined) {
     return Effect.fail(
-      new ToonDecodingError({
+      new RecordDecodingError({
         file: inputFile,
         message: "Missing frontmatter in input.md",
       }),
@@ -175,29 +166,13 @@ function parseInputFrontmatter(contents: string, inputFile: string) {
   }).pipe(
     Effect.mapError(
       (cause) =>
-        new ToonDecodingError({
+        new RecordDecodingError({
           file: inputFile,
           message: String(cause),
         }),
     ),
   );
 }
-
-const readToonStoredPersonFile = Effect.fn("Ascendant.readToonStoredPersonFile")(function* (
-  inputFile: string,
-) {
-  const fs = yield* FileSystem.FileSystem;
-  const contents = yield* fs.readFileString(inputFile);
-  const decoded = yield* Effect.try({
-    try: () => decode(contents),
-    catch: (cause) =>
-      new ToonDecodingError({
-        file: inputFile,
-        message: String(cause),
-      }),
-  });
-  return yield* Schema.decodeUnknownEffect(StoredPerson)(decoded);
-});
 
 export const readStoredPerson = Effect.fn("Ascendant.readStoredPerson")(function* (
   name: PersonName,
@@ -206,41 +181,13 @@ export const readStoredPerson = Effect.fn("Ascendant.readStoredPerson")(function
   const path = yield* Path.Path;
   const inputFile = path.join("persons", name, "input.md");
 
-  if (yield* fs.exists(inputFile)) {
-    const contents = yield* fs.readFileString(inputFile);
-    return yield* parseInputFrontmatter(contents, inputFile);
+  if (!(yield* fs.exists(inputFile))) {
+    return yield* new PersonRecordNotFound({
+      file: inputFile,
+      message: `No initialized person record exists for ${name}`,
+    });
   }
 
-  for (const legacy of ["input.txt", "input.toon", "input.json"] as const) {
-    const legacyFile = path.join("persons", name, legacy);
-    if (yield* fs.exists(legacyFile)) {
-      if (legacy === "input.json") {
-        const contents = yield* fs.readFileString(legacyFile);
-        return yield* Schema.decodeUnknownEffect(Schema.fromJsonString(StoredPerson))(contents);
-      }
-      return yield* readToonStoredPersonFile(legacyFile);
-    }
-  }
-
-  return yield* new PersonRecordNotFound({
-    file: inputFile,
-    message: `No initialized person record exists for ${name}`,
-  });
-});
-
-export const readLegacyToonStoredPerson = Effect.fn("Ascendant.readLegacyToonStoredPerson")(
-  function* (name: PersonName) {
-    const path = yield* Path.Path;
-    return yield* readToonStoredPersonFile(path.join("persons", name, "input.toon"));
-  },
-);
-
-export const readLegacyStoredPerson = Effect.fn("Ascendant.readLegacyStoredPerson")(function* (
-  name: PersonName,
-) {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const inputFile = path.join("persons", name, "input.json");
   const contents = yield* fs.readFileString(inputFile);
-  return yield* Schema.decodeUnknownEffect(Schema.fromJsonString(StoredPerson))(contents);
+  return yield* parseInputFrontmatter(contents, inputFile);
 });

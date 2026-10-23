@@ -488,57 +488,21 @@ function formatArgalaMarkdown(result: Effect.Success<ReturnType<typeof Argala.ca
   ].join("\n");
 }
 
-function legacyArtifactFiles(path: Path.Path, personDirectory: string): ReadonlyArray<string> {
-  const extensions = ["txt", "toon", "json"] as const;
-  const files: Array<string> = [
-    path.join(personDirectory, "input.txt"),
-    path.join(personDirectory, "input.toon"),
-    path.join(personDirectory, "input.json"),
-    path.join(personDirectory, "dasha.txt"),
-    path.join(personDirectory, "sav.txt"),
-    path.join(personDirectory, "yoga.txt"),
-    path.join(personDirectory, "kp", "D1.txt"),
-    path.join(personDirectory, "kp", "dasha.txt"),
-    ...Chart.Division.literals.flatMap((division) =>
-      extensions.map((extension) =>
-        path.join(personDirectory, "charts", `D${division}.${extension}`),
-      ),
-    ),
-    ...[
-      "chara-karakas",
-      "rashi-drishti",
-      "karakamsha",
-      "arudha-padas",
-      "upapada",
-      "argala",
-    ].flatMap((artifact) =>
-      extensions.map((extension) =>
-        path.join(personDirectory, "jaimini", `${artifact}.${extension}`),
-      ),
-    ),
-  ];
-  return files;
-}
-
 export const addPerson = Effect.fn("Ascendant.addPerson")(function* (storedPerson: StoredPerson) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const personDirectory = path.join("persons", storedPerson.name);
   const inputFile = path.join(personDirectory, "input.md");
-  const legacyToonInputFile = path.join(personDirectory, "input.toon");
-  const legacyJsonInputFile = path.join(personDirectory, "input.json");
-  const legacyTxtInputFile = path.join(personDirectory, "input.txt");
   const personDirectoryExists = yield* fs.exists(personDirectory);
 
   if (personDirectoryExists) {
-    const inputExists = yield* fs.exists(inputFile);
-    const legacyToonInputExists = yield* fs.exists(legacyToonInputFile);
-    const legacyJsonInputExists = yield* fs.exists(legacyJsonInputFile);
-    const legacyTxtInputExists = yield* fs.exists(legacyTxtInputFile);
-    if (!inputExists && !legacyToonInputExists && !legacyJsonInputExists && !legacyTxtInputExists) {
+    if (!(yield* fs.exists(inputFile))) {
       return yield* PersonRecordConflict.make({
         directory: personDirectory,
-        message: "The directory already exists but is not an Ascendant person record",
+        message:
+          `${personDirectory} exists but has no input.md. Records written by older versions ` +
+          "(input.txt, input.toon, input.json) are no longer read; move or delete the directory, " +
+          "then run add again",
       });
     }
 
@@ -657,11 +621,6 @@ export const addPerson = Effect.fn("Ascendant.addPerson")(function* (storedPerso
       writeMarkdown(path.join(jaiminiDirectory, "argala.md"), formatArgalaMarkdown(argala)),
     ],
     { concurrency: "unbounded" },
-  );
-
-  yield* Effect.all(
-    legacyArtifactFiles(path, personDirectory).map((file) => fs.remove(file, { force: true })),
-    { concurrency: "unbounded", discard: true },
   );
 
   return {

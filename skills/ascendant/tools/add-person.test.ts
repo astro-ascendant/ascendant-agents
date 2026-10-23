@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, test } from "bun:test";
@@ -84,6 +84,44 @@ describe("addPerson chart schools", () => {
       expect(input).toContain("| Field | Value |");
       expect(sav).toContain("# Sarvashtakavarga");
       expect(charaKarakas).toContain("# Chara Karakas");
+    } finally {
+      process.chdir(previous);
+      await rm(workspace, { recursive: true, force: true });
+    }
+  });
+
+  test("refuses a directory written by the retired TOON format", async () => {
+    const workspace = await mkdtemp(join(tmpdir(), "ascendant-legacy-"));
+    const previous = process.cwd();
+    process.chdir(workspace);
+
+    try {
+      const personDirectory = join(workspace, "persons", "Ada");
+      await mkdir(personDirectory, { recursive: true });
+      await writeFile(
+        join(personDirectory, "input.toon"),
+        [
+          "schemaVersion: 1",
+          "name: Ada",
+          'moment: "1990-01-01T12:00:00+05:30"',
+          "latitude: 12.9716",
+          "longitude: 77.5946",
+          "",
+        ].join("\n"),
+      );
+
+      const error = await Effect.runPromise(
+        addPersonFromInput(ADA.name, ADA.moment, ADA.latitude, ADA.longitude).pipe(
+          Effect.provide(AppLayer),
+          Effect.flip,
+        ),
+      );
+
+      if (error._tag !== "PersonRecordConflict") {
+        throw new Error(`expected PersonRecordConflict, received ${error._tag}`);
+      }
+      expect(error.message).toContain("input.md");
+      expect(error.message).toContain("input.toon");
     } finally {
       process.chdir(previous);
       await rm(workspace, { recursive: true, force: true });
