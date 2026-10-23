@@ -2,6 +2,9 @@
 name: ascendant
 description: Save Birth Chart; Get KP or Parashari answers with citations from KP and Parashara references.
 version: 1.1.1
+license: AGPL-3.0-or-later
+metadata:
+  author: Laxman K R
 user-invocable: true
 argument-hint: add | setup | analysis
 ---

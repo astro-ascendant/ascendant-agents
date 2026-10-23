@@ -30,7 +30,8 @@
  * copy instead (same trick as impeccable's skill/SKILL.src.md).
  *
  * Frontmatter varies per provider: the canonical and Claude copies carry
- * `name` + `description` + `version` plus `user-invocable` / `argument-hint`.
+ * `name` + `description` + `version` + `license` + `metadata` plus
+ * `user-invocable` / `argument-hint`.
  * The body stays byte-identical: the `<skill-dir>` token is resolved by the
  * agent at runtime to the directory holding SKILL.md, so it is portable.
  *
@@ -68,20 +69,35 @@ const PROVIDERS = {
   },
 };
 
+function parseScalar(value) {
+  if (/^(".*"|'.*')$/.test(value)) return value.slice(1, -1);
+  if (value === "true") return true;
+  if (value === "false") return false;
+  return value;
+}
+
 function parseFrontmatter(content) {
   const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/);
   if (!match) return { frontmatter: {}, body: content };
   const frontmatter = {};
+  // Key of a `key:` line with an empty value. Only becomes a nested map when
+  // indented lines follow it, so `key: ""` keeps reading as an empty string.
+  let parent = null;
   for (const line of match[1].split(/\r?\n/)) {
     if (!line.trim()) continue;
+    if (/^\s+\S/.test(line)) {
+      const colon = line.indexOf(":");
+      if (colon <= 0 || parent === null) continue;
+      if (typeof frontmatter[parent] !== "object") frontmatter[parent] = {};
+      frontmatter[parent][line.slice(0, colon).trim()] = parseScalar(line.slice(colon + 1).trim());
+      continue;
+    }
     const colon = line.indexOf(":");
     if (colon <= 0) continue;
     const key = line.slice(0, colon).trim();
-    let value = line.slice(colon + 1).trim();
-    if (/^(".*"|'.*')$/.test(value)) value = value.slice(1, -1);
-    else if (value === "true") value = true;
-    else if (value === "false") value = false;
-    frontmatter[key] = value;
+    const value = line.slice(colon + 1).trim();
+    frontmatter[key] = value === "" ? "" : parseScalar(value);
+    parent = value === "" ? key : null;
   }
   return { frontmatter, body: match[2].trim() + "\n" };
 }
@@ -172,6 +188,10 @@ function readSkillsVersion() {
 function buildSkillMarkdown(frontmatter, body, { fields, version }) {
   const out = { name: frontmatter.name, description: frontmatter.description };
   if (version) out.version = version;
+  if (frontmatter.license) out.license = frontmatter.license;
+  if (frontmatter.metadata && Object.keys(frontmatter.metadata).length > 0) {
+    out.metadata = frontmatter.metadata;
+  }
   if (fields.includes("user-invocable") && frontmatter["user-invocable"])
     out["user-invocable"] = true;
   if (
