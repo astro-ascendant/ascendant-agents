@@ -51,6 +51,7 @@ bun scripts/build-opencode-plugin.mjs --check  # drift check, builds to a temp d
 - OpenCode registers the skill, the `/ascendant` command, and both tools programmatically. It reads `skills/ascendant/SKILL.md` at runtime, so there is no OpenCode skill copy to regenerate.
 - `skills/ascendant/scripts/ascendant.sh` copies an **explicit allowlist** of tool files into `./.ascendant-agent/` in the user's cwd. Any new file under `tools/` must be added there or the runtime copy will silently miss it.
 - Person records are written to `./persons/<name>/` in the user's cwd (gitignored). Never commit them.
+- Method preference lives in `./.ascendant/config.txt` in the user's cwd, written by `skills/ascendant/scripts/config.sh` during setup. It holds only `defaultMethod` (`KP`, `Parashari`, `NULL`) and `askMethodEverySession` (`TRUE`, `FALSE`, forced `TRUE` when the method is `NULL`). The directory self-ignores with `*`; never commit it.
 
 ## Effect and plugin landmines
 
